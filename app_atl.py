@@ -77,10 +77,6 @@ def load_data():
             dayfirst=True
         )
 
-    # Calculate Age
-    today = pd.Timestamp.today()
-    df['Age'] = ((today - df['DOB']).dt.days / 365.25).astype(float).round(1)
-
     # Convert Yes / No columns
     binary_cols = ['S&C', 'Rehab']
 
@@ -162,12 +158,6 @@ selected_bmi_categories = st.sidebar.multiselect(
     bmi_categories
 )
 
-# Search notes
-search_notes = st.sidebar.text_input(
-    "Search Notes",
-    ""
-)
-
 # =========================================================
 # APPLY FILTERS
 # =========================================================
@@ -191,13 +181,6 @@ if selected_status:
 if selected_names:
     filtered_df = filtered_df[
         filtered_df['Name'].isin(selected_names)
-    ]
-
-if search_notes:
-    filtered_df = filtered_df[
-        filtered_df['Notes']
-        .fillna('')
-        .str.contains(search_notes, case=False)
     ]
 
 # =========================================================
