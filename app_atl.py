@@ -443,7 +443,7 @@ with tab2:
 
     # Filter athlete tests
     athlete_tests = test_df[
-        test_df['ID/Name'] == selected_profile
+        test_df['Name'] == selected_profile
     ].copy()
 
     if not athlete_tests.empty:
