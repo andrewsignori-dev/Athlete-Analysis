@@ -18,8 +18,8 @@ st.set_page_config(
     page_icon="🏥"
 )
 
-st.title("🏥 Athletes Monitoring Dashboard")
-st.markdown("Track athlete health, rehabilitation, and monitoring status.")
+st.title("Athletes Monitoring Dashboard")
+#st.markdown("Track athlete health, rehabilitation, and monitoring status.")
 
 # =========================================================
 # LOAD DATA
@@ -134,15 +134,32 @@ selected_names = st.sidebar.multiselect(
     names
 )
 
-# BMI range
-min_bmi = float(df['BMI'].min()) if not df['BMI'].isna().all() else 0.0
-max_bmi = float(df['BMI'].max()) if not df['BMI'].isna().all() else 40.0
+def bmi_category(bmi):
+    if pd.isna(bmi):
+        return "Unknown"
+    elif bmi < 18.5:
+        return "Underweight"
+    elif bmi < 25:
+        return "Normal"
+    elif bmi < 30:
+        return "Overweight"
+    else:
+        return "Obese"
 
-bmi_range = st.sidebar.slider(
-    "BMI Range",
-    min_value=float(round(min_bmi, 1)),
-    max_value=float(round(max_bmi, 1)),
-    value=(float(round(min_bmi, 1)), float(round(max_bmi, 1)))
+# Create BMI category column
+df['BMI_Category'] = df['BMI'].apply(bmi_category)
+
+# Sidebar category selector
+bmi_categories = [
+    "Underweight",
+    "Normal",
+    "Overweight",
+    "Obese"
+]
+
+selected_bmi_categories = st.sidebar.multiselect(
+    "Select BMI Category",
+    bmi_categories
 )
 
 # Search notes
