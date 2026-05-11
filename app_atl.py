@@ -418,6 +418,7 @@ if not profile_df.empty:
 
     with c2:
         st.metric("BMI", round(athlete['BMI'], 0))
+        st.metric("Gender", athlete['Gender'])
 
     with c3:
         st.metric("Status", athlete['Status'])
