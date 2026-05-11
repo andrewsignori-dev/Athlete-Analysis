@@ -531,6 +531,40 @@ with tab2:
             latest_tests[summary_cols],
             use_container_width=True
         )
+        
+        # =====================================================
+        # AUTOMATIC REPORT
+        # =====================================================
+        st.markdown("### 📝 Automatic Report")
+
+        total_tests = athlete_tests['Date'].nunique()
+
+        avg_left = round(
+            athlete_tests['Left Strength'].mean(),
+            1
+        )
+
+        avg_right = round(
+            athlete_tests['Right Strength'].mean(),
+            1
+        )
+
+        latest_date = athlete_tests['Date'].max()
+
+        st.success(
+            f"""
+            {selected_profile} completed {total_tests} testing sessions.
+
+            Average Left Strength: {avg_left}
+
+            Average Right Strength: {avg_right}
+
+            Latest testing date: {latest_date.strftime('%d/%m/%Y')}
+            """
+        )
+
+    else:
+        st.info("No test history available.")
 
 # =========================================================
 # FOOTER
