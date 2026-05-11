@@ -193,11 +193,6 @@ if selected_names:
         filtered_df['Name'].isin(selected_names)
     ]
 
-filtered_df = filtered_df[
-    (filtered_df['BMI'] >= bmi_range[0]) &
-    (filtered_df['BMI'] <= bmi_range[1])
-]
-
 if search_notes:
     filtered_df = filtered_df[
         filtered_df['Notes']
