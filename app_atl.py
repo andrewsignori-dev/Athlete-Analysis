@@ -40,7 +40,8 @@ def load_data():
     # =====================================================
     test_df = pd.read_excel(
         "Storage file.xlsx",
-        sheet_name="Test history"
+        sheet_name="Test history",
+        header=1
     )
 
     # =====================================================
