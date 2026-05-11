@@ -437,10 +437,6 @@ if not profile_df.empty:
 # =========================================================
 st.markdown('---')
 st.caption('Developed with Streamlit • Athlete Monitoring System')
-```
 
-
-
----
 
 
