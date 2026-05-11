@@ -435,7 +435,7 @@ if not profile_df.empty:
 
     with c2:
         st.metric("Weight (kg)", athlete['Weight_kg'])
-        st.metric("BMI", athlete['BMI'])
+        st.metric("BMI", round(athlete['BMI'], 0))
 
     with c3:
         st.metric("Status", athlete['Status'])
