@@ -413,11 +413,10 @@ if not profile_df.empty:
     c1, c2, c3 = st.columns(3)
 
     with c1:
-        st.metric("Age", athlete['Age'])
         st.metric("Height (cm)", athlete['Height_cm'])
+        st.metric("Weight (kg)", athlete['Weight_kg'])
 
     with c2:
-        st.metric("Weight (kg)", athlete['Weight_kg'])
         st.metric("BMI", round(athlete['BMI'], 0))
 
     with c3:
