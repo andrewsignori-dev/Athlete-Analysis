@@ -25,17 +25,39 @@ st.title("Athletes Monitoring Dashboard")
 # LOAD DATA
 # =========================================================
 @st.cache_data
-
 def load_data():
-    df = pd.read_excel("Storage file.xlsx")
 
-    # Clean columns
+    # =====================================================
+    # MAIN ATHLETE DATABASE
+    # =====================================================
+    df = pd.read_excel(
+        "Storage file.xlsx",
+        sheet_name=0
+    )
+
+    # =====================================================
+    # TEST HISTORY DATABASE
+    # =====================================================
+    test_df = pd.read_excel(
+        "Storage file.xlsx",
+        sheet_name="Test history"
+    )
+
+    # =====================================================
+    # CLEAN COLUMN NAMES
+    # =====================================================
     df.columns = df.columns.str.strip()
+    test_df.columns = test_df.columns.str.strip()
 
-    # Remove duplicates
+    # =====================================================
+    # REMOVE DUPLICATES
+    # =====================================================
     df = df.drop_duplicates()
+    test_df = test_df.drop_duplicates()
 
-    # Rename columns for consistency
+    # =====================================================
+    # RENAME COLUMNS
+    # =====================================================
     rename_dict = {
         'Date of birth': 'DOB',
         'Height (cm)': 'Height_cm',
@@ -45,30 +67,38 @@ def load_data():
 
     df = df.rename(columns=rename_dict)
 
-    # Convert numeric columns
-    numeric_cols = ['Height_cm', 'Weight_kg']
+    # =====================================================
+    # NUMERIC CLEANING
+    # =====================================================
+    numeric_cols = [
+        'Height_cm',
+        'Weight_kg',
+        'BMI'
+    ]
 
     for col in numeric_cols:
+
         if col in df.columns:
+
             df[col] = (
                 df[col]
                 .astype(str)
                 .str.replace(',', '.', regex=False)
             )
-            df[col] = pd.to_numeric(df[col], errors='coerce')
 
-    # BMI cleaning
-    if 'BMI' in df.columns:
-        df['BMI'] = (
-            df['BMI']
-            .astype(str)
-            .str.replace(',', '.', regex=False)
-        )
-        df['BMI'] = pd.to_numeric(df['BMI'], errors='coerce')
+            df[col] = pd.to_numeric(
+                df[col],
+                errors='coerce'
+            )
 
-    # Date columns
+    # =====================================================
+    # DATE CLEANING
+    # =====================================================
     if 'DOB' in df.columns:
-        df['DOB'] = pd.to_datetime(df['DOB'], errors='coerce')
+        df['DOB'] = pd.to_datetime(
+            df['DOB'],
+            errors='coerce'
+        )
 
     if 'Monitoring_Start' in df.columns:
         df['Monitoring_Start'] = pd.to_datetime(
@@ -77,23 +107,67 @@ def load_data():
             dayfirst=True
         )
 
-    # Convert Yes / No columns
-    binary_cols = ['S&C', 'Rehab']
+    # =====================================================
+    # YES / NO CLEANING
+    # =====================================================
+    binary_cols = [
+        'S&C',
+        'Rehab'
+    ]
 
     for col in binary_cols:
+
         if col in df.columns:
             df[col] = df[col].fillna('No')
 
-    return df
+    # =====================================================
+    # TEST HISTORY CLEANING
+    # =====================================================
+    test_numeric_cols = [
+        'Left Strength',
+        'Right Strength'
+    ]
+
+    for col in test_numeric_cols:
+
+        if col in test_df.columns:
+
+            test_df[col] = (
+                test_df[col]
+                .astype(str)
+                .str.replace(',', '.', regex=False)
+            )
+
+            test_df[col] = pd.to_numeric(
+                test_df[col],
+                errors='coerce'
+            )
+
+    # Clean test dates
+    if 'Date' in test_df.columns:
+
+        test_df['Date'] = pd.to_datetime(
+            test_df['Date'],
+            errors='coerce',
+            dayfirst=True
+        )
+
+    return df, test_df
 
 
-# Load dataframe
+# =========================================================
+# LOAD DATAFRAMES
+# =========================================================
 try:
-    df = load_data()
-except Exception as e:
-    st.error(f"Error loading Excel file: {e}")
-    st.stop()
+    df, test_df = load_data()
 
+except Exception as e:
+
+    st.error(
+        f"Error loading Excel file: {e}"
+    )
+
+    st.stop()
 # =========================================================
 # SIDEBAR FILTERS
 # =========================================================
