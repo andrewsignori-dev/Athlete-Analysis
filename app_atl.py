@@ -212,134 +212,153 @@ with col5:
 st.markdown('---')
 
 # =========================================================
-# TABLE SECTION
+# DASHBOARD TABS
 # =========================================================
-st.subheader("📋 Athletes Database")
-
-st.dataframe(
-    filtered_df,
-    use_container_width=True,
-    height=500
-)
+tab1, tab2 = st.tabs([
+    "📊 Main Dashboard",
+    "👤 Individual Profile Section"
+])
 
 # =========================================================
-# CHARTS
+# TAB 1
 # =========================================================
-colA, colB = st.columns(2)
+with tab1:
 
-# ---------------------------------------------------------
-# STATUS DISTRIBUTION
-# ---------------------------------------------------------
-with colA:
-    st.subheader("🏥 Status Distribution")
+    # =========================================================
+    # TABLE SECTION
+    # =========================================================
+    st.subheader("📋 Athletes Database")
 
-    status_counts = (
-        filtered_df['Status']
-        .value_counts()
-        .reset_index()
+    st.dataframe(
+        filtered_df,
+        use_container_width=True,
+        height=500
     )
 
-    status_counts.columns = ['Status', 'Count']
+    # =========================================================
+    # CHARTS
+    # =========================================================
+    colA, colB = st.columns(2)
 
-    fig_status = px.pie(
-        status_counts,
-        names='Status',
-        values='Count',
-        hole=0.4
+    # ---------------------------------------------------------
+    # STATUS DISTRIBUTION
+    # ---------------------------------------------------------
+    with colA:
+        st.subheader("🏥 Status Distribution")
+
+        status_counts = (
+            filtered_df['Status']
+            .value_counts()
+            .reset_index()
+        )
+
+        status_counts.columns = ['Status', 'Count']
+
+        fig_status = px.pie(
+            status_counts,
+            names='Status',
+            values='Count',
+            hole=0.4
+        )
+
+        st.plotly_chart(fig_status, use_container_width=True)
+
+    # ---------------------------------------------------------
+    # TEAM DISTRIBUTION
+    # ---------------------------------------------------------
+    with colB:
+        st.subheader("🏅 Team Distribution")
+
+        team_counts = (
+            filtered_df['Team']
+            .value_counts()
+            .reset_index()
+        )
+
+        team_counts.columns = ['Team', 'Count']
+
+        fig_team = px.bar(
+            team_counts,
+            x='Team',
+            y='Count',
+            text='Count'
+        )
+
+        st.plotly_chart(fig_team, use_container_width=True)
+
+    # =========================================================
+    # BMI ANALYSIS
+    # =========================================================
+    st.subheader("📈 BMI Analysis")
+
+    fig_bmi = px.scatter(
+        filtered_df,
+        x='Height_cm',
+        y='Weight_kg',
+        size='BMI',
+        color='Status',
+        hover_data=['Name', 'Team'],
     )
 
-    st.plotly_chart(fig_status, use_container_width=True)
+    st.plotly_chart(fig_bmi, use_container_width=True)
 
-# ---------------------------------------------------------
-# TEAM DISTRIBUTION
-# ---------------------------------------------------------
-with colB:
-    st.subheader("🏅 Team Distribution")
+    # =========================================================
+    # ALTAIR CHART
+    # =========================================================
+    st.subheader("📊 BMI by Team")
 
-    team_counts = (
-        filtered_df['Team']
-        .value_counts()
-        .reset_index()
+    alt_chart = (
+        alt.Chart(filtered_df)
+        .mark_bar()
+        .encode(
+            x='Team:N',
+            y='mean(BMI):Q',
+            tooltip=['Team', 'mean(BMI)']
+        )
+        .properties(height=400)
     )
 
-    team_counts.columns = ['Team', 'Count']
+    st.altair_chart(alt_chart, use_container_width=True)
 
-    fig_team = px.bar(
-        team_counts,
-        x='Team',
-        y='Count',
-        text='Count'
+# =========================================================
+# TAB 2
+# =========================================================
+with tab2:
+
+    # =========================================================
+    # ATHLETE PROFILE SECTION
+    # =========================================================
+    st.subheader("👤 Individual Athlete Profile")
+
+    selected_profile = st.selectbox(
+        "Select Athlete",
+        filtered_df['Name'].unique()
     )
 
-    st.plotly_chart(fig_team, use_container_width=True)
+    profile_df = filtered_df[
+        filtered_df['Name'] == selected_profile
+    ]
 
-# =========================================================
-# BMI ANALYSIS
-# =========================================================
-st.subheader("📈 BMI Analysis")
+    if not profile_df.empty:
 
-fig_bmi = px.scatter(
-    filtered_df,
-    x='Height_cm',
-    y='Weight_kg',
-    size='BMI',
-    color='Status',
-    hover_data=['Name', 'Team'],
-)
+        athlete = profile_df.iloc[0]
 
-st.plotly_chart(fig_bmi, use_container_width=True)
+        c1, c2, c3 = st.columns(3)
 
-# =========================================================
-# ALTair CHART
-# =========================================================
-st.subheader("📊 BMI by Team")
+        with c1:
+            st.metric("Height (cm)", athlete['Height_cm'])
+            st.metric("Weight (kg)", athlete['Weight_kg'])
 
-alt_chart = (
-    alt.Chart(filtered_df)
-    .mark_bar()
-    .encode(
-        x='Team:N',
-        y='mean(BMI):Q',
-        tooltip=['Team', 'mean(BMI)']
-    )
-    .properties(height=400)
-)
+        with c2:
+            st.metric("BMI", round(athlete['BMI'], 0))
+            st.metric("Gender", athlete['Gender'])
 
-st.altair_chart(alt_chart, use_container_width=True)
+        with c3:
+            st.metric("Status", athlete['Status'])
+            st.metric("Rehab", athlete['Rehab'])
 
-# =========================================================
-# ATHLETE PROFILE SECTION
-# =========================================================
-st.subheader("👤 Individual Athlete Profile")
-
-selected_profile = st.selectbox(
-    "Select Athlete",
-    filtered_df['Name'].unique()
-)
-
-profile_df = filtered_df[
-    filtered_df['Name'] == selected_profile
-]
-
-if not profile_df.empty:
-    athlete = profile_df.iloc[0]
-
-    c1, c2, c3 = st.columns(3)
-
-    with c1:
-        st.metric("Height (cm)", athlete['Height_cm'])
-        st.metric("Weight (kg)", athlete['Weight_kg'])
-
-    with c2:
-        st.metric("BMI", round(athlete['BMI'], 0))
-        st.metric("Gender", athlete['Gender'])
-
-    with c3:
-        st.metric("Status", athlete['Status'])
-        st.metric("Rehab", athlete['Rehab'])
-
-    st.markdown("### Notes")
-    st.info(athlete['Notes'])
+        st.markdown("### Notes")
+        st.info(athlete['Notes'])
 
 # =========================================================
 # FOOTER
