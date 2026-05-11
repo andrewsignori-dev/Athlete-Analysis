@@ -1,0 +1,10 @@
+streamlit
+pandas
+numpy
+openpyxl
+gdown
+altair<5
+altair_saver
+plotly
+fpdf
+selenium
