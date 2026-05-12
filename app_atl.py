@@ -738,7 +738,7 @@ with tab3:
             # Left
             ax.plot(
                 kpi_df['Date'],
-                kpi_df['Left Strength'],
+                kpi_df['Left'],
                 marker='o',
                 linewidth=2,
                 label='Left')
@@ -746,7 +746,7 @@ with tab3:
             # Right
             ax.plot(
                 kpi_df['Date'],
-                kpi_df['Right Strength'],
+                kpi_df['Right'],
                 marker='o',
                 linewidth=2,
                 label='Right')
