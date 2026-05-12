@@ -751,26 +751,26 @@ with tab3:
                 linewidth=2,
                 label='Right')
 
-           ax.set_title(exercise, fontsize=10)
-           ax.set_xlabel("")
-           ax.set_ylabel("Strength")
+            ax.set_title(exercise, fontsize=10)
+            ax.set_xlabel("")
+            ax.set_ylabel("Strength")
 
-           # Rotate dates
-           ax.tick_params(
+            # Rotate dates
+            ax.tick_params(
                axis='x',
                rotation=45,
                labelsize=8)
 
-           ax.tick_params(
+            ax.tick_params(
                axis='y',
                labelsize=8)
 
-           ax.legend(fontsize=8)
-           ax.grid(True)
+            ax.legend(fontsize=8)
+            ax.grid(True)
 
-           with cols[j]:
+            with cols[j]:
                st.pyplot(fig)
-           else:
+            else:
 st.info("No test data available for this athlete.")
  
 # =========================================================
