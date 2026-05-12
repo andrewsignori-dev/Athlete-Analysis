@@ -434,22 +434,25 @@ with tab2:
 
         st.markdown("### Notes")
         st.info(athlete['Notes'])
-    
+
     # =========================================================
     # TEST RESULTS SECTION
     # =========================================================
     st.markdown("---")
     st.subheader("🏋️ Test Results")
+
     athlete_tests = test_df[test_df['Name'] == selected_profile]
+
     if not athlete_tests.empty:
-        # Optional: convert date column
+
+        athlete_tests = athlete_tests.copy()
+
         athlete_tests['Date'] = pd.to_datetime(
             athlete_tests['Date'],
             errors='coerce',
             dayfirst=True
         )
 
-        # Show latest status
         latest_test = athlete_tests.sort_values(
             by='Date',
             ascending=False
@@ -474,41 +477,95 @@ with tab2:
                 athlete_tests['Exercise name'].nunique()
             )
 
+        # =========================================================
+        # CLEAN KPI + FORCEFRAME PAIRING
+        # =========================================================
         st.markdown("### ForceFrame Results")
-        # =========================================================
-        # KPI TABLE (FIXED ROW PAIRING)
-        # =========================================================
 
         df = athlete_tests.copy().reset_index(drop=True)
 
         df['Date'] = pd.to_datetime(
             df['Date'],
-            dayfirst=True,
-            errors='coerce')
-        rows = []
+            errors='coerce',
+            dayfirst=True
+        )
 
+        rows = []
         i = 0
+
         while i < len(df) - 1:
+
             row = df.iloc[i]
             next_row = df.iloc[i + 1]
 
-            # KPI row = has KPI but no strength values
             if pd.notna(row['KPI']) and pd.isna(row.get('Left Strength')):
+
                 rows.append({
                     'Date': row['Date'],
                     'KPI': row['KPI'],
-                    'Left Strength': next_row.get('Left Strength'),
-                    'Right Strength': next_row.get('Right Strength')})
+                    'Left Strength': pd.to_numeric(
+                        str(next_row.get('Left Strength')).replace(',', '.'),
+                        errors='coerce'
+                    ),
+                    'Right Strength': pd.to_numeric(
+                        str(next_row.get('Right Strength')).replace(',', '.'),
+                        errors='coerce'
+                    )
+                })
 
-                i += 2  # skip paired row
+                i += 2
             else:
                 i += 1
 
-        display_df = pd.DataFrame(rows)
+        clean_df = pd.DataFrame(rows)
 
+        # =========================================================
+        # TABLE
+        # =========================================================
         st.dataframe(
-            display_df.sort_values(by='Date', ascending=False),
-            use_container_width=True)
+            clean_df.sort_values(by='Date', ascending=False),
+            use_container_width=True
+        )
+
+        # =========================================================
+        # PLOTS PER KPI
+        # =========================================================
+        st.markdown("### 📈 KPI Progression Over Time")
+
+        import matplotlib.pyplot as plt
+
+        for kpi in clean_df['KPI'].dropna().unique():
+
+            kpi_data = clean_df[
+                clean_df['KPI'] == kpi
+            ].sort_values('Date')
+
+            if len(kpi_data) < 2:
+                continue
+
+            fig, ax = plt.subplots()
+
+            ax.plot(
+                kpi_data['Date'],
+                kpi_data['Left Strength'],
+                marker='o',
+                label='Left Strength'
+            )
+
+            ax.plot(
+                kpi_data['Date'],
+                kpi_data['Right Strength'],
+                marker='o',
+                label='Right Strength'
+            )
+
+            ax.set_title(kpi)
+            ax.set_xlabel("Date")
+            ax.set_ylabel("Force")
+            ax.legend()
+            ax.grid(True)
+
+            st.pyplot(fig)
 
     else:
         st.info("No test data available for this athlete.")
