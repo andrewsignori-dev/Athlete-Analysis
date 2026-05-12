@@ -848,6 +848,47 @@ with tab3:
 
                 with cols[j]:
                     st.pyplot(fig)
+                # =====================================================
+                # KPI SUMMARY DELTA
+                # =====================================================
+                st.markdown("### 📌 KPI Progress Summary")
+                summary_rows = []
+
+                for kpi in final_ratio_table['KPI'].dropna().unique():
+                    kpi_df = final_ratio_table[
+                    final_ratio_table['KPI'] == kpi].sort_values('Date')
+                    
+                    if len(kpi_df) < 2:
+                        continue
+
+                # First values
+                first_left = kpi_df.iloc[0]['Left']
+                first_right = kpi_df.iloc[0]['Right']
+
+                # Last values
+                last_left = kpi_df.iloc[-1]['Left']
+                last_right = kpi_df.iloc[-1]['Right']
+
+                # Delta %
+                delta_left = (
+                    (last_left - first_left) / first_left * 100
+                    if first_left != 0 else np.nan)
+
+                delta_right = (
+                    (last_right - first_right) / first_right * 100
+                    if first_right != 0 else np.nan)
+
+                summary_rows.append({
+                    'KPI': kpi,
+                    'Delta % Left':
+                    round(delta_left, 1),
+                    'Delta % Right':
+                    round(delta_right, 1)})
+
+                summary_df = pd.DataFrame(summary_rows)
+                st.dataframe(
+                    summary_df,
+                    use_container_width=True)
 
     else:
         st.info("No test data available for this athlete.")
