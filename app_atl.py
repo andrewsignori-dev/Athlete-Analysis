@@ -446,7 +446,7 @@ with tab3:
     # COLUMN NAMES
     # =====================================================
     name_col = [c for c in test_df.columns if 'Name' in c][0]
-    date_col = [c for c in test_df.columns if 'Date' in c][0]
+    date_col = [c for c in test_df.columns if c.endswith('Date')][0]
     exercise_col = [c for c in test_df.columns if 'Exercise name' in c][0]
 
     left_col = [
