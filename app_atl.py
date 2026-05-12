@@ -434,6 +434,68 @@ with tab2:
 
         st.markdown("### Notes")
         st.info(athlete['Notes'])
+    
+    # =========================================================
+    # TEST RESULTS SECTION
+    # =========================================================
+    st.markdown("---")
+    st.subheader("🏋️ Test Results")
+
+    if not athlete_tests.empty:
+
+        # Optional: convert date column
+        athlete_tests['Date'] = pd.to_datetime(
+            athlete_tests['Date'],
+            errors='coerce',
+            dayfirst=True
+        )
+
+        # Show latest status
+        latest_test = athlete_tests.sort_values(
+            by='Date',
+            ascending=False
+        ).iloc[0]
+
+        c1, c2, c3 = st.columns(3)
+
+        with c1:
+            st.metric("Current Status", latest_test['Status'])
+
+        with c2:
+            st.metric(
+                "Last Test Date",
+                latest_test['Date'].strftime("%d/%m/%Y")
+                if pd.notnull(latest_test['Date'])
+                else "-"
+            )
+
+        with c3:
+            st.metric(
+                "Exercises Tested",
+                athlete_tests['Exercise name'].nunique()
+            )
+
+        st.markdown("### ForceFrame Results")
+
+        # Display cleaner dataframe
+        display_cols = [
+            'Date',
+            'Exercise name',
+            'KPI',
+            'Left Strength',
+            'Right Strength',
+            'Delta Left (t-1)',
+            'Delta Right (t-1)'
+        ]
+
+        st.dataframe(
+            athlete_tests[display_cols]
+            .sort_values(by='Date', ascending=False),
+            use_container_width=True
+        )
+
+    else:
+        st.info("No test data available for this athlete.")
        
  
 # =========================================================
