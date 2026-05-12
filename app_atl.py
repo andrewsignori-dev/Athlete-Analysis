@@ -440,13 +440,35 @@ with tab2:
 # =========================================================
 with tab3:
 
-    import matplotlib.pyplot as plt
-    import numpy as np
-
     st.subheader("🏋️ Athlete Test History")
     athlete_tests = test_df[
     test_df[name_col] == selected_profile
     ].copy()
+
+    # =====================================================
+    # COLUMN DETECTION
+    # =====================================================
+    name_col = [c for c in test_df.columns if 'Name' in c][0]
+
+    date_col = [
+        c for c in test_df.columns
+        if c.endswith('Date')
+    ][0]
+
+    exercise_col = [
+        c for c in test_df.columns
+        if 'Exercise name' in c
+    ][0]
+
+    left_col = [
+        c for c in test_df.columns
+        if 'Left Strength' in c
+    ][0]
+
+    right_col = [
+        c for c in test_df.columns
+        if 'Right Strength' in c
+    ][0]
     
     # =====================================================
     # ATHLETE SUMMARY
@@ -482,31 +504,6 @@ with tab3:
         last_test.strftime('%Y-%m-%d')
         if pd.notnull(last_test)
         else "-")
-
-    # =====================================================
-    # COLUMN DETECTION
-    # =====================================================
-    name_col = [c for c in test_df.columns if 'Name' in c][0]
-
-    date_col = [
-        c for c in test_df.columns
-        if c.endswith('Date')
-    ][0]
-
-    exercise_col = [
-        c for c in test_df.columns
-        if 'Exercise name' in c
-    ][0]
-
-    left_col = [
-        c for c in test_df.columns
-        if 'Left Strength' in c
-    ][0]
-
-    right_col = [
-        c for c in test_df.columns
-        if 'Right Strength' in c
-    ][0]
 
     # =====================================================
     # ATHLETE SELECTOR
