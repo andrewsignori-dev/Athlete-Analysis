@@ -728,7 +728,7 @@ with tab3:
             kpi = kpis[i + j]
             
             kpi_df = plot_df[
-            plot_df['KPI'] == kpi].sort_values('Date')
+            final_ratio_table['KPI'] == kpi].sort_values('Date')
             
             if kpi_df.empty:
                 continue
