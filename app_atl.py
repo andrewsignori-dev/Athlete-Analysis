@@ -716,7 +716,7 @@ with tab3:
         # -----------------------------------------------------
         # GRID LAYOUT
         # -----------------------------------------------------
-        exercises = plot_df['KPI'].dropna().unique()
+        kpis = plot_df['KPI'].dropna().unique()
         n_cols = 2
 
         for i in range(0, len(kpis), n_cols):
