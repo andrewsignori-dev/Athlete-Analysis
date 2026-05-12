@@ -8,3 +8,4 @@ altair_saver
 plotly
 fpdf
 selenium
+matplotlib
