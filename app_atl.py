@@ -708,15 +708,15 @@ with tab3:
         # =====================================================
         st.markdown("### 📈 Strength Progression")
 
-        plot_df['Date'] = pd.to_datetime(
-            plot_df['Date'],
+        final_ratio_table['Date'] = pd.to_datetime(
+            final_ratio_table['Date'],
             dayfirst=True,
             errors='coerce')
 
         # -----------------------------------------------------
         # GRID LAYOUT
         # -----------------------------------------------------
-        kpis = plot_df['KPI'].dropna().unique()
+        kpis = final_ratio_table['KPI'].dropna().unique()
         n_cols = 2
 
         for i in range(0, len(kpis), n_cols):
