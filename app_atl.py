@@ -440,6 +440,9 @@ with tab2:
 # =========================================================
 with tab3:
 
+    import matplotlib.pyplot as plt
+    import numpy as np
+
     st.subheader("🏋️ Athlete Test History")
 
     # =====================================================
@@ -529,16 +532,20 @@ with tab3:
             right_col: 'Right Strength'
         })
 
-        # Format date
-        display_df['Date'] = display_df['Date'].dt.strftime('%d/%m/%Y')
-
         # =====================================================
         # DISPLAY TABLE
         # =====================================================
+        table_df = display_df.copy()
+
+        table_df['Date'] = (
+            table_df['Date']
+            .dt.strftime('%d/%m/%Y')
+        )
+
         st.markdown("### 📋 Test Results")
 
         st.dataframe(
-            display_df.sort_values(
+            table_df.sort_values(
                 by='Date',
                 ascending=False
             ),
@@ -546,17 +553,9 @@ with tab3:
         )
 
         # =====================================================
-        # RATIO TABLE
+        # PREPARE FOR RATIOS
         # =====================================================
-        st.markdown("### 📊 Strength Ratios")
-
         plot_df = display_df.copy()
-
-        plot_df['Date'] = pd.to_datetime(
-            plot_df['Date'],
-            dayfirst=True,
-            errors='coerce'
-        )
 
         # -----------------------------------------------------
         # FUNCTION
@@ -577,7 +576,7 @@ with tab3:
             return temp
 
         # -----------------------------------------------------
-        # EXERCISES
+        # EXERCISE DATA
         # -----------------------------------------------------
         er_df = get_strength(plot_df, 'HIP ER ISO')
         ir_df = get_strength(plot_df, 'HIP IR ISO')
@@ -602,9 +601,9 @@ with tab3:
             'HIP ABD 60° ISO'
         )
 
-        # -----------------------------------------------------
-        # MERGE
-        # -----------------------------------------------------
+        # =====================================================
+        # MERGE TABLES
+        # =====================================================
         ratio_table = er_df.copy()
 
         for df_merge in [
@@ -614,15 +613,16 @@ with tab3:
             add60_df,
             abb60_df
         ]:
+
             ratio_table = ratio_table.merge(
                 df_merge,
                 on='Date',
                 how='outer'
             )
 
-        # -----------------------------------------------------
-        # RATIOS
-        # -----------------------------------------------------
+        # =====================================================
+        # CALCULATE RATIOS
+        # =====================================================
         ratio_table['ER/IR Left'] = (
             ratio_table['HIP ER ISO_L'] /
             ratio_table['HIP IR ISO_L']
@@ -653,9 +653,9 @@ with tab3:
             ratio_table['HIP ABD 60° ISO_R']
         )
 
-        # -----------------------------------------------------
+        # =====================================================
         # FINAL RATIO TABLE
-        # -----------------------------------------------------
+        # =====================================================
         final_ratio_table = pd.DataFrame({
 
             'Date': list(ratio_table['Date']) * 3,
@@ -682,7 +682,7 @@ with tab3:
         final_ratio_table = (
             final_ratio_table
             .dropna(subset=['Left', 'Right'])
-            .sort_values(by='Date', ascending=False)
+            .sort_values(by='Date')
         )
 
         final_ratio_table[['Left', 'Right']] = (
@@ -690,87 +690,127 @@ with tab3:
             .round(3)
         )
 
-        final_ratio_table['Date'] = (
-            final_ratio_table['Date']
+        # =====================================================
+        # DISPLAY RATIO TABLE
+        # =====================================================
+        ratio_display = final_ratio_table.copy()
+
+        ratio_display['Date'] = (
+            ratio_display['Date']
             .dt.strftime('%d/%m/%Y')
         )
 
-        # -----------------------------------------------------
-        # DISPLAY RATIO TABLE
-        # -----------------------------------------------------
+        st.markdown("### 📊 Strength Ratios")
+
         st.dataframe(
-            final_ratio_table,
+            ratio_display,
             use_container_width=True
         )
 
         # =====================================================
-        # PLOTS
+        # KPI BAR PLOTS
         # =====================================================
-        st.markdown("### 📈 Strength Progression")
+        st.markdown("### 📈 Ratio Progression")
 
-        final_ratio_table['Date'] = pd.to_datetime(
-            final_ratio_table['Date'],
-            dayfirst=True,
-            errors='coerce')
-
-        # -----------------------------------------------------
-        # GRID LAYOUT
-        # -----------------------------------------------------
         kpis = final_ratio_table['KPI'].dropna().unique()
+
         n_cols = 2
 
         for i in range(0, len(kpis), n_cols):
+
             cols = st.columns(n_cols)
+
             for j in range(n_cols):
+
                 if i + j >= len(kpis):
                     continue
 
-            kpi = kpis[i + j]
-            
-            kpi_df = final_ratio_table[
-            final_ratio_table['KPI'] == kpi].sort_values('Date')
-            
-            if kpi_df.empty:
-                continue
+                kpi = kpis[i + j]
 
-            fig, ax = plt.subplots(figsize=(4,3))
+                kpi_df = final_ratio_table[
+                    final_ratio_table['KPI'] == kpi
+                ].sort_values('Date')
 
-            # Left
-            ax.plot(
-                kpi_df['Date'],
-                kpi_df['Left'],
-                marker='o',
-                linewidth=2,
-                label='Left')
+                if kpi_df.empty:
+                    continue
 
-            # Right
-            ax.plot(
-                kpi_df['Date'],
-                kpi_df['Right'],
-                marker='o',
-                linewidth=2,
-                label='Right')
+                fig, ax = plt.subplots(figsize=(4,3))
 
-            ax.set_title(kpi, fontsize=10)
-            ax.set_xlabel("")
-            ax.set_ylabel("Strength")
+                x = np.arange(len(kpi_df))
 
-            # Rotate dates
-            ax.tick_params(
-               axis='x',
-               rotation=45,
-               labelsize=8)
+                width = 0.35
 
-            ax.tick_params(
-               axis='y',
-               labelsize=8)
+                # LEFT BARS
+                ax.bar(
+                    x - width/2,
+                    kpi_df['Left'],
+                    width,
+                    label='Left'
+                )
 
-            ax.legend(fontsize=8)
-            ax.grid(True)
+                # RIGHT BARS
+                ax.bar(
+                    x + width/2,
+                    kpi_df['Right'],
+                    width,
+                    label='Right'
+                )
 
-            with cols[j]:
-               st.pyplot(fig)
-          
+                # TITLE
+                ax.set_title(
+                    kpi,
+                    fontsize=10
+                )
+
+                ax.set_ylabel("Ratio")
+
+                # X LABELS
+                ax.set_xticks(x)
+
+                ax.set_xticklabels(
+                    kpi_df['Date'].dt.strftime('%d/%m/%Y'),
+                    rotation=45,
+                    ha='right',
+                    fontsize=8
+                )
+
+                ax.tick_params(
+                    axis='y',
+                    labelsize=8
+                )
+
+                ax.legend(fontsize=8)
+
+                ax.grid(axis='y')
+
+                # VALUES
+                for idx, val in enumerate(kpi_df['Left']):
+
+                    ax.text(
+                        idx - width/2,
+                        val,
+                        f'{val:.2f}',
+                        ha='center',
+                        va='bottom',
+                        fontsize=7
+                    )
+
+                for idx, val in enumerate(kpi_df['Right']):
+
+                    ax.text(
+                        idx + width/2,
+                        val,
+                        f'{val:.2f}',
+                        ha='center',
+                        va='bottom',
+                        fontsize=7
+                    )
+
+                with cols[j]:
+                    st.pyplot(fig)
+
+    else:
+        st.info("No test data available for this athlete.")
 
  
 # =========================================================
