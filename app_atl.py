@@ -442,6 +442,7 @@ with tab2:
     st.subheader("🏋️ Test Results")
 
     if not athlete_tests.empty:
+        athlete_tests = test_df[test_df['Name'] == selected_profile]
 
         # Optional: convert date column
         athlete_tests['Date'] = pd.to_datetime(
