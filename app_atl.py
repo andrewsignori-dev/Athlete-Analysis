@@ -444,6 +444,44 @@ with tab3:
     import numpy as np
 
     st.subheader("🏋️ Athlete Test History")
+    athlete_tests = test_df[
+    test_df[name_col] == selected_profile
+    ].copy()
+    
+    # =====================================================
+    # ATHLETE SUMMARY
+    # =====================================================
+
+    # Unique tests
+    n_tests = athlete_tests[exercise_col].nunique()
+
+    # First test
+    first_test = athlete_tests[date_col].min()
+
+    # Last test
+    last_test = athlete_tests[date_col].max()
+
+    # Display metrics
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+    st.metric(
+        "Unique Tests",
+        n_tests)
+
+    with c2:
+    st.metric(
+        "First Test",
+        first_test.strftime('%Y-%m-%d')
+        if pd.notnull(first_test)
+        else "-")
+
+    with c3:
+    st.metric(
+        "Last Test",
+        last_test.strftime('%Y-%m-%d')
+        if pd.notnull(last_test)
+        else "-")
 
     # =====================================================
     # COLUMN DETECTION
@@ -482,9 +520,6 @@ with tab3:
     # =====================================================
     # FILTER ATHLETE
     # =====================================================
-    athlete_tests = test_df[
-        test_df[name_col] == selected_profile
-    ].copy()
 
     if not athlete_tests.empty:
 
