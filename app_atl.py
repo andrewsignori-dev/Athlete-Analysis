@@ -770,8 +770,8 @@ with tab3:
 
             with cols[j]:
                st.pyplot(fig)
-            else:
-st.info("No test data available for this athlete.")
+          
+
  
 # =========================================================
 # FOOTER
