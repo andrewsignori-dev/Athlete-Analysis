@@ -4,6 +4,7 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
+import matplotlib.pyplot as plt
 import altair as alt
 from io import BytesIO
 from fpdf import FPDF
@@ -531,8 +532,6 @@ with tab2:
         # PLOTS PER KPI
         # =========================================================
         st.markdown("### 📈 KPI Progression Over Time")
-
-        import matplotlib.pyplot as plt
 
         for kpi in clean_df['KPI'].dropna().unique():
 
