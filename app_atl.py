@@ -440,10 +440,8 @@ with tab2:
     # =========================================================
     st.markdown("---")
     st.subheader("🏋️ Test Results")
-
+    athlete_tests = test_df[test_df['Name'] == selected_profile]
     if not athlete_tests.empty:
-        athlete_tests = test_df[test_df['Name'] == selected_profile]
-
         # Optional: convert date column
         athlete_tests['Date'] = pd.to_datetime(
             athlete_tests['Date'],
