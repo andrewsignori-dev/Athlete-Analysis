@@ -442,169 +442,61 @@ with tab2:
 # =========================================================
 with tab3:
 
-    st.subheader("🏋️ Test Results")
+    st.subheader("🏋️ Athlete Test Overview")
 
-    # Make sure athlete is selected (reuse from Tab 2 logic)
+    # Athlete selector (independent of other tabs)
     selected_profile = st.selectbox(
         "Select Athlete",
         test_df['Name'].unique(),
         key="tab3_athlete_select"
     )
 
-    athlete_tests = test_df[test_df['Name'] == selected_profile]
+    athlete_tests = test_df[test_df['Name'] == selected_profile].copy()
 
     if not athlete_tests.empty:
 
-        athlete_tests = athlete_tests.copy()
-
+        # -------------------------------------------------
+        # CLEAN DATA
+        # -------------------------------------------------
         athlete_tests['Date'] = pd.to_datetime(
             athlete_tests['Date'],
             errors='coerce',
             dayfirst=True
         )
 
-        latest_test = athlete_tests.sort_values(
-            by='Date',
-            ascending=False
-        ).iloc[0]
-
-        # =========================================================
-        # METRICS
-        # =========================================================
-        c1, c2, c3 = st.columns(3)
-
-        with c1:
-            st.metric("Current Status", latest_test['Status'])
-
-        with c2:
-            st.metric(
-                "Last Test Date",
-                latest_test['Date'].strftime("%d/%m/%Y")
-                if pd.notnull(latest_test['Date'])
-                else "-"
-            )
-
-        with c3:
-            st.metric(
-                "Exercises Tested",
-                athlete_tests['Exercise name'].nunique()
-            )
-
-        # =========================================================
-        # CLEAN KPI + FORCEFRAME PAIRING
-        # =========================================================
-        st.markdown("### ForceFrame Results")
-
-        df = athlete_tests.copy().reset_index(drop=True)
-
-        df['Date'] = pd.to_datetime(
-            df['Date'],
-            errors='coerce',
-            dayfirst=True
+        # Convert values (handles comma decimals)
+        athlete_tests['Left Strength'] = pd.to_numeric(
+            athlete_tests['Left Strength'].astype(str).str.replace(',', '.'),
+            errors='coerce'
         )
 
-        rows = []
-        i = 0
+        athlete_tests['Right Strength'] = pd.to_numeric(
+            athlete_tests['Right Strength'].astype(str).str.replace(',', '.'),
+            errors='coerce'
+        )
 
-        while i < len(df):
+        # -------------------------------------------------
+        # FILTER ONLY VALID TEST ROWS
+        # (rows where exercise exists)
+        # -------------------------------------------------
+        display_df = athlete_tests[
+            athlete_tests['Exercise name'].notna()
+        ][
+            [
+                'Date',
+                'Exercise name',
+                'Left Strength',
+                'Right Strength'
+            ]
+        ]
 
-            row = df.iloc[i]
-
-            # CASE 1: same row contains values
-            if pd.notna(row.get('KPI')) and pd.notna(row.get('Left Strength')):
-
-                rows.append({
-                    'Date': row['Date'],
-                    'KPI': row['KPI'],
-                    'Left Strength': pd.to_numeric(
-                        str(row['Left Strength']).replace(',', '.'),
-                        errors='coerce'
-                    ),
-                    'Right Strength': pd.to_numeric(
-                        str(row['Right Strength']).replace(',', '.'),
-                        errors='coerce'
-                    )
-                })
-
-                i += 1
-                continue
-
-            # CASE 2: next row contains values
-            if pd.notna(row.get('KPI')) and i + 1 < len(df):
-
-                next_row = df.iloc[i + 1]
-
-                rows.append({
-                    'Date': row['Date'],
-                    'KPI': row['KPI'],
-                    'Left Strength': pd.to_numeric(
-                        str(next_row.get('Left Strength')).replace(',', '.'),
-                        errors='coerce'
-                    ),
-                    'Right Strength': pd.to_numeric(
-                        str(next_row.get('Right Strength')).replace(',', '.')
-                    )
-                })
-
-                i += 2
-                continue
-
-            i += 1
-
-        clean_df = pd.DataFrame(rows)
-
-        # =========================================================
-        # TABLE
-        # =========================================================
-        if not clean_df.empty:
-
-            st.dataframe(
-                clean_df.sort_values(by='Date', ascending=False),
-                use_container_width=True
-            )
-
-            # =========================================================
-            # PLOTS
-            # =========================================================
-            st.markdown("### 📈 KPI Progression Over Time")
-
-            import matplotlib.pyplot as plt
-
-            for kpi in clean_df['KPI'].dropna().unique():
-
-                kpi_data = clean_df[
-                    clean_df['KPI'] == kpi
-                ].sort_values('Date')
-
-                if len(kpi_data) < 2:
-                    continue
-
-                fig, ax = plt.subplots()
-
-                ax.plot(
-                    kpi_data['Date'],
-                    kpi_data['Left Strength'],
-                    marker='o',
-                    label='Left Strength'
-                )
-
-                ax.plot(
-                    kpi_data['Date'],
-                    kpi_data['Right Strength'],
-                    marker='o',
-                    label='Right Strength'
-                )
-
-                ax.set_title(kpi)
-                ax.set_xlabel("Date")
-                ax.set_ylabel("Force")
-                ax.legend()
-                ax.grid(True)
-
-                st.pyplot(fig)
-
-        else:
-            st.warning("No KPI strength data found for this athlete.")
+        # -------------------------------------------------
+        # SHOW TABLE
+        # -------------------------------------------------
+        st.dataframe(
+            display_df.sort_values(by='Date', ascending=False),
+            use_container_width=True
+        )
 
     else:
         st.info("No test data available for this athlete.")
