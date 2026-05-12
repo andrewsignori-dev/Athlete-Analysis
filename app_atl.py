@@ -490,7 +490,7 @@ with tab2:
         forceframe_start + 1 : forceframe_start + 5].tolist()
 
         # Final columns
-       display_cols += forceframe_metrics
+        display_cols += forceframe_metrics
 
         # Show dataframe
         st.dataframe(athlete_tests[display_cols]
