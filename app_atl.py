@@ -465,19 +465,19 @@ with tab3:
     c1, c2, c3 = st.columns(3)
 
     with c1:
-    st.metric(
+        st.metric(
         "Unique Tests",
         n_tests)
 
     with c2:
-    st.metric(
+        st.metric(
         "First Test",
         first_test.strftime('%Y-%m-%d')
         if pd.notnull(first_test)
         else "-")
 
     with c3:
-    st.metric(
+        st.metric(
         "Last Test",
         last_test.strftime('%Y-%m-%d')
         if pd.notnull(last_test)
