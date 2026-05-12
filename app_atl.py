@@ -869,7 +869,7 @@ with tab3:
         # =====================================================
         # KPI DELTA SUMMARY
         # =====================================================
-        st.markdown("### 📌 Delta % KPI Progress Summary")
+        st.markdown("### 📌 Delta % KPI Progress Summary (First date vs Last date")
 
         summary_rows = []
 
