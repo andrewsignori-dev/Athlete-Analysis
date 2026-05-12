@@ -443,11 +443,19 @@ with tab3:
     st.subheader("🏋️ Athlete Test History")
 
     # =====================================================
-    # COLUMN NAMES
+    # COLUMN DETECTION
     # =====================================================
     name_col = [c for c in test_df.columns if 'Name' in c][0]
-    date_col = [c for c in test_df.columns if c.endswith('Date')][0]
-    exercise_col = [c for c in test_df.columns if 'Exercise name' in c][0]
+
+    date_col = [
+        c for c in test_df.columns
+        if c.endswith('Date')
+    ][0]
+
+    exercise_col = [
+        c for c in test_df.columns
+        if 'Exercise name' in c
+    ][0]
 
     left_col = [
         c for c in test_df.columns
@@ -460,7 +468,7 @@ with tab3:
     ][0]
 
     # =====================================================
-    # ATHLETE SELECTION
+    # ATHLETE SELECTOR
     # =====================================================
     selected_profile = st.selectbox(
         "Select Athlete",
@@ -469,7 +477,7 @@ with tab3:
     )
 
     # =====================================================
-    # FILTER ATHLETE DATA
+    # FILTER ATHLETE
     # =====================================================
     athlete_tests = test_df[
         test_df[name_col] == selected_profile
@@ -485,8 +493,6 @@ with tab3:
             errors='coerce',
             dayfirst=True
         )
-        # Format date correctly
-        athlete_tests[date_col] = athlete_tests[date_col].dt.strftime('%d/%m/%Y')
 
         athlete_tests[left_col] = pd.to_numeric(
             athlete_tests[left_col]
@@ -503,7 +509,7 @@ with tab3:
         )
 
         # =====================================================
-        # KEEP VALID TEST ROWS
+        # BASE TABLE
         # =====================================================
         display_df = athlete_tests[
             athlete_tests[exercise_col].notna()
@@ -514,11 +520,8 @@ with tab3:
                 left_col,
                 right_col
             ]
-        ]
+        ].copy()
 
-        # =====================================================
-        # RENAME COLUMNS
-        # =====================================================
         display_df = display_df.rename(columns={
             date_col: 'Date',
             exercise_col: 'Exercise',
@@ -526,9 +529,14 @@ with tab3:
             right_col: 'Right Strength'
         })
 
+        # Format date
+        display_df['Date'] = display_df['Date'].dt.strftime('%d/%m/%Y')
+
         # =====================================================
         # DISPLAY TABLE
         # =====================================================
+        st.markdown("### 📋 Test Results")
+
         st.dataframe(
             display_df.sort_values(
                 by='Date',
@@ -536,6 +544,211 @@ with tab3:
             ),
             use_container_width=True
         )
+
+        # =====================================================
+        # RATIO TABLE
+        # =====================================================
+        st.markdown("### 📊 Strength Ratios")
+
+        plot_df = display_df.copy()
+
+        plot_df['Date'] = pd.to_datetime(
+            plot_df['Date'],
+            dayfirst=True,
+            errors='coerce'
+        )
+
+        # -----------------------------------------------------
+        # FUNCTION
+        # -----------------------------------------------------
+        def get_strength(df, exercise_name):
+
+            temp = df[
+                df['Exercise'] == exercise_name
+            ][
+                ['Date', 'Left Strength', 'Right Strength']
+            ].copy()
+
+            temp = temp.rename(columns={
+                'Left Strength': f'{exercise_name}_L',
+                'Right Strength': f'{exercise_name}_R'
+            })
+
+            return temp
+
+        # -----------------------------------------------------
+        # EXERCISES
+        # -----------------------------------------------------
+        er_df = get_strength(plot_df, 'HIP ER ISO')
+        ir_df = get_strength(plot_df, 'HIP IR ISO')
+
+        add_sup_df = get_strength(
+            plot_df,
+            'HIP ADD SUPINE (ANKLE) ISO'
+        )
+
+        abb_sup_df = get_strength(
+            plot_df,
+            'HIP ABD SUPINE (ANKLE) ISO'
+        )
+
+        add60_df = get_strength(
+            plot_df,
+            'HIP ADD 60° ISO'
+        )
+
+        abb60_df = get_strength(
+            plot_df,
+            'HIP ABD 60° ISO'
+        )
+
+        # -----------------------------------------------------
+        # MERGE
+        # -----------------------------------------------------
+        ratio_table = er_df.copy()
+
+        for df_merge in [
+            ir_df,
+            add_sup_df,
+            abb_sup_df,
+            add60_df,
+            abb60_df
+        ]:
+            ratio_table = ratio_table.merge(
+                df_merge,
+                on='Date',
+                how='outer'
+            )
+
+        # -----------------------------------------------------
+        # RATIOS
+        # -----------------------------------------------------
+        ratio_table['ER/IR Left'] = (
+            ratio_table['HIP ER ISO_L'] /
+            ratio_table['HIP IR ISO_L']
+        )
+
+        ratio_table['ER/IR Right'] = (
+            ratio_table['HIP ER ISO_R'] /
+            ratio_table['HIP IR ISO_R']
+        )
+
+        ratio_table['ADD/ABB SUPINE Left'] = (
+            ratio_table['HIP ADD SUPINE (ANKLE) ISO_L'] /
+            ratio_table['HIP ABD SUPINE (ANKLE) ISO_L']
+        )
+
+        ratio_table['ADD/ABB SUPINE Right'] = (
+            ratio_table['HIP ADD SUPINE (ANKLE) ISO_R'] /
+            ratio_table['HIP ABD SUPINE (ANKLE) ISO_R']
+        )
+
+        ratio_table['ADD/ABB 60 Left'] = (
+            ratio_table['HIP ADD 60° ISO_L'] /
+            ratio_table['HIP ABD 60° ISO_L']
+        )
+
+        ratio_table['ADD/ABB 60 Right'] = (
+            ratio_table['HIP ADD 60° ISO_R'] /
+            ratio_table['HIP ABD 60° ISO_R']
+        )
+
+        # -----------------------------------------------------
+        # FINAL RATIO TABLE
+        # -----------------------------------------------------
+        final_ratio_table = pd.DataFrame({
+
+            'Date': list(ratio_table['Date']) * 3,
+
+            'KPI': (
+                ['ER/IR'] * len(ratio_table) +
+                ['ADD/ABB SUPINE'] * len(ratio_table) +
+                ['ADD/ABB 60'] * len(ratio_table)
+            ),
+
+            'Left': (
+                list(ratio_table['ER/IR Left']) +
+                list(ratio_table['ADD/ABB SUPINE Left']) +
+                list(ratio_table['ADD/ABB 60 Left'])
+            ),
+
+            'Right': (
+                list(ratio_table['ER/IR Right']) +
+                list(ratio_table['ADD/ABB SUPINE Right']) +
+                list(ratio_table['ADD/ABB 60 Right'])
+            )
+        })
+
+        final_ratio_table = (
+            final_ratio_table
+            .dropna(subset=['Left', 'Right'])
+            .sort_values(by='Date', ascending=False)
+        )
+
+        final_ratio_table[['Left', 'Right']] = (
+            final_ratio_table[['Left', 'Right']]
+            .round(3)
+        )
+
+        final_ratio_table['Date'] = (
+            final_ratio_table['Date']
+            .dt.strftime('%d/%m/%Y')
+        )
+
+        # -----------------------------------------------------
+        # DISPLAY RATIO TABLE
+        # -----------------------------------------------------
+        st.dataframe(
+            final_ratio_table,
+            use_container_width=True
+        )
+
+        # =====================================================
+        # PLOTS
+        # =====================================================
+        st.markdown("### 📈 Strength Progression")
+
+        plot_df['Date'] = pd.to_datetime(
+            plot_df['Date'],
+            dayfirst=True,
+            errors='coerce'
+        )
+
+        for exercise in plot_df['Exercise'].unique():
+
+            ex_df = plot_df[
+                plot_df['Exercise'] == exercise
+            ].sort_values('Date')
+
+            if ex_df.empty:
+                continue
+
+            fig, ax = plt.subplots(figsize=(7,4))
+
+            ax.plot(
+                ex_df['Date'],
+                ex_df['Left Strength'],
+                marker='o',
+                linewidth=2,
+                label='Left Strength'
+            )
+
+            ax.plot(
+                ex_df['Date'],
+                ex_df['Right Strength'],
+                marker='o',
+                linewidth=2,
+                label='Right Strength'
+            )
+
+            ax.set_title(exercise)
+            ax.set_xlabel("Date")
+            ax.set_ylabel("Strength")
+
+            ax.legend()
+            ax.grid(True)
+
+            st.pyplot(fig)
 
     else:
         st.info("No test data available for this athlete.")
