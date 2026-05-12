@@ -476,27 +476,31 @@ with tab2:
 
         st.markdown("### ForceFrame Results")
         # =========================================================
-        # FORCEFRAME RESULTS
+        # KPI TABLE
         # =========================================================
-        # Main columns
-        display_cols = [
-            'Date',
-            'Exercise name',
-            'KPI']
-        # Add all columns AFTER "ForceFrame"
-        forceframe_start = athlete_tests.columns.get_loc('ForceFrame')
+        # Keep only KPI rows
+        kpi_df = athlete_tests[athlete_tests['KPI'].notna()].copy()
 
-        forceframe_metrics = athlete_tests.columns[
-        forceframe_start + 1 : forceframe_start + 5].tolist()
+        # Convert date
+        kpi_df['Date'] = pd.to_datetime(
+            kpi_df['Date'],
+            dayfirst=True,
+            errors='coerce')
 
-        # Final columns
-        display_cols += forceframe_metrics
+        # Select columns
+        display_df = kpi_df[
+        [
+        'Date',
+        'KPI',
+        'Left Strength',
+        'Right Strength']]
 
-        # Show dataframe
-        st.dataframe(athlete_tests[display_cols]
-        .sort_values(by='Date', ascending=False),
-        use_container_width=True)
-
+        # Display
+        st.dataframe(
+            display_df.sort_values(
+            by='Date',
+            ascending=False),
+            use_container_width=True)
 
     else:
         st.info("No test data available for this athlete.")
