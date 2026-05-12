@@ -440,6 +440,9 @@ with tab2:
 # =========================================================
 with tab3:
 
+    import matplotlib.pyplot as plt
+    import numpy as np
+
     st.subheader("🏋️ Athlete Test History")
 
     # =====================================================
@@ -467,45 +470,6 @@ with tab3:
         if 'Right Strength' in c
     ][0]
 
-    athlete_tests = test_df[
-    test_df[name_col] == selected_profile
-    ].copy()
-    
-    # =====================================================
-    # ATHLETE SUMMARY
-    # =====================================================
-
-    # Unique tests
-    n_tests = athlete_tests[exercise_col].nunique()
-
-    # First test
-    first_test = athlete_tests[date_col].min()
-
-    # Last test
-    last_test = athlete_tests[date_col].max()
-
-    # Display metrics
-    c1, c2, c3 = st.columns(3)
-
-    with c1:
-        st.metric(
-        "Unique Tests",
-        n_tests)
-
-    with c2:
-        st.metric(
-        "First Test",
-        first_test.strftime('%Y-%m-%d')
-        if pd.notnull(first_test)
-        else "-")
-
-    with c3:
-        st.metric(
-        "Last Test",
-        last_test.strftime('%Y-%m-%d')
-        if pd.notnull(last_test)
-        else "-")
-
     # =====================================================
     # ATHLETE SELECTOR
     # =====================================================
@@ -518,6 +482,9 @@ with tab3:
     # =====================================================
     # FILTER ATHLETE
     # =====================================================
+    athlete_tests = test_df[
+        test_df[name_col] == selected_profile
+    ].copy()
 
     if not athlete_tests.empty:
 
@@ -545,6 +512,39 @@ with tab3:
         )
 
         # =====================================================
+        # ATHLETE SUMMARY
+        # =====================================================
+        n_tests = athlete_tests[exercise_col].nunique()
+
+        first_test = athlete_tests[date_col].min()
+
+        last_test = athlete_tests[date_col].max()
+
+        c1, c2, c3 = st.columns(3)
+
+        with c1:
+            st.metric(
+                "Unique Tests",
+                n_tests
+            )
+
+        with c2:
+            st.metric(
+                "First Test",
+                first_test.strftime('%Y-%m-%d')
+                if pd.notnull(first_test)
+                else "-"
+            )
+
+        with c3:
+            st.metric(
+                "Last Test",
+                last_test.strftime('%Y-%m-%d')
+                if pd.notnull(last_test)
+                else "-"
+            )
+
+        # =====================================================
         # BASE TABLE
         # =====================================================
         display_df = athlete_tests[
@@ -565,13 +565,16 @@ with tab3:
             right_col: 'Right Strength'
         })
 
+        # Clean exercise names
+        display_df['Exercise'] = (
+            display_df['Exercise']
+            .astype(str)
+            .str.strip()
+        )
+
         # =====================================================
         # DISPLAY TABLE
         # =====================================================
-        # Clean exercise names
-        display_df['Exercise'] = (
-            display_df['Exercise'].astype(str).str.strip()
-        )
         table_df = display_df.copy()
 
         table_df['Date'] = (
@@ -590,7 +593,7 @@ with tab3:
         )
 
         # =====================================================
-        # PREPARE FOR RATIOS
+        # PREPARE RATIO DATA
         # =====================================================
         plot_df = display_df.copy()
 
@@ -613,7 +616,7 @@ with tab3:
             return temp
 
         # -----------------------------------------------------
-        # EXERCISE DATA
+        # EXERCISES
         # -----------------------------------------------------
         er_df = get_strength(plot_df, 'HIP ER ISO')
         ir_df = get_strength(plot_df, 'HIP IR ISO')
