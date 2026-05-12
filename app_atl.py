@@ -716,37 +716,37 @@ with tab3:
         # -----------------------------------------------------
         # GRID LAYOUT
         # -----------------------------------------------------
-        exercises = plot_df['Exercise'].dropna().unique()
+        exercises = plot_df['KPI'].dropna().unique()
         n_cols = 2
 
-        for i in range(0, len(exercises), n_cols):
+        for i in range(0, len(kpis), n_cols):
             cols = st.columns(n_cols)
             for j in range(n_cols):
-                if i + j >= len(exercises):
+                if i + j >= len(kpis):
                     continue
 
-            exercise = exercises[i + j]
+            kpi = kpis[i + j]
             
-            ex_df = plot_df[
-            plot_df['Exercise'] == exercise].sort_values('Date')
+            kpi_df = plot_df[
+            plot_df['KPI'] == kpi].sort_values('Date')
             
-            if ex_df.empty:
+            if kpi_df.empty:
                 continue
 
             fig, ax = plt.subplots(figsize=(4,3))
 
             # Left
             ax.plot(
-                ex_df['Date'],
-                ex_df['Left Strength'],
+                kpi_df['Date'],
+                kpi_df['Left Strength'],
                 marker='o',
                 linewidth=2,
                 label='Left')
 
             # Right
             ax.plot(
-                ex_df['Date'],
-                ex_df['Right Strength'],
+                kpi_df['Date'],
+                kpi_df['Right Strength'],
                 marker='o',
                 linewidth=2,
                 label='Right')
