@@ -42,20 +42,18 @@ def load_data():
     test_df = pd.read_excel(
         "Storage file.xlsx",
         sheet_name="Test history",
-        header=1
+        header=[0,1,2]
     )
+    
+    test_df.columns = [
+    '_'.join([str(i).strip() for i in col if 'Unnamed' not in str(i)])
+    for col in test_df.columns]
 
     # =====================================================
     # CLEAN COLUMN NAMES
     # =====================================================
     df.columns = df.columns.str.strip()
     test_df.columns = test_df.columns.str.strip()
-
-    # =====================================================
-    # REMOVE DUPLICATES
-    # =====================================================
-    df = df.drop_duplicates()
-    test_df = test_df.drop_duplicates()
 
     # =====================================================
     # RENAME COLUMNS
@@ -442,34 +440,48 @@ with tab2:
 # =========================================================
 with tab3:
 
-    st.subheader("🏋️ Athlete Test Overview")
+    st.subheader("🏋️ Athlete Test History")
 
-    # Clean column names
-    test_df.columns = (
-        test_df.columns
-        .str.strip()
-        .str.replace('\n', ' ', regex=False)
-        .str.replace(r'\s+', ' ', regex=True)
-    )
+    # =====================================================
+    # COLUMN NAMES
+    # =====================================================
+    name_col = [c for c in test_df.columns if 'Name' in c][0]
+    date_col = [c for c in test_df.columns if 'Date' in c][0]
+    exercise_col = [c for c in test_df.columns if 'Exercise name' in c][0]
 
-    # Detect columns automatically
-    left_col = [c for c in test_df.columns if 'Left Strength' in c][0]
-    right_col = [c for c in test_df.columns if 'Right Strength' in c][0]
+    left_col = [
+        c for c in test_df.columns
+        if 'Left Strength' in c
+    ][0]
 
+    right_col = [
+        c for c in test_df.columns
+        if 'Right Strength' in c
+    ][0]
+
+    # =====================================================
+    # ATHLETE SELECTION
+    # =====================================================
     selected_profile = st.selectbox(
         "Select Athlete",
-        test_df['Name'].dropna().unique(),
+        sorted(test_df[name_col].dropna().unique()),
         key="tab3_athlete"
     )
 
+    # =====================================================
+    # FILTER ATHLETE DATA
+    # =====================================================
     athlete_tests = test_df[
-        test_df['Name'] == selected_profile
+        test_df[name_col] == selected_profile
     ].copy()
 
     if not athlete_tests.empty:
 
-        athlete_tests['Date'] = pd.to_datetime(
-            athlete_tests['Date'],
+        # =====================================================
+        # CLEAN DATA
+        # =====================================================
+        athlete_tests[date_col] = pd.to_datetime(
+            athlete_tests[date_col],
             errors='coerce',
             dayfirst=True
         )
@@ -488,22 +500,33 @@ with tab3:
             errors='coerce'
         )
 
+        # =====================================================
+        # KEEP VALID TEST ROWS
+        # =====================================================
         display_df = athlete_tests[
-            athlete_tests['Exercise name'].notna()
+            athlete_tests[exercise_col].notna()
         ][
             [
-                'Date',
-                'Exercise name',
+                date_col,
+                exercise_col,
                 left_col,
                 right_col
             ]
         ]
 
+        # =====================================================
+        # RENAME COLUMNS
+        # =====================================================
         display_df = display_df.rename(columns={
+            date_col: 'Date',
+            exercise_col: 'Exercise',
             left_col: 'Left Strength',
             right_col: 'Right Strength'
         })
 
+        # =====================================================
+        # DISPLAY TABLE
+        # =====================================================
         st.dataframe(
             display_df.sort_values(
                 by='Date',
