@@ -476,30 +476,38 @@ with tab2:
 
         st.markdown("### ForceFrame Results")
         # =========================================================
-        # KPI TABLE
+        # KPI TABLE (FIXED ROW PAIRING)
         # =========================================================
-        # Keep only KPI rows
-        kpi_df = athlete_tests[athlete_tests['KPI'].notna()].copy()
 
-        # Convert date
-        kpi_df['Date'] = pd.to_datetime(
-            kpi_df['Date'],
+        df = athlete_tests.copy().reset_index(drop=True)
+
+        df['Date'] = pd.to_datetime(
+            df['Date'],
             dayfirst=True,
             errors='coerce')
+        rows = []
 
-        # Select columns
-        display_df = kpi_df[
-        [
-        'Date',
-        'KPI',
-        'Left Strength',
-        'Right Strength']]
+        i = 0
+        while i < len(df) - 1:
+            row = df.iloc[i]
+            next_row = df.iloc[i + 1]
 
-        # Display
+            # KPI row = has KPI but no strength values
+            if pd.notna(row['KPI']) and pd.isna(row.get('Left Strength')):
+                rows.append({
+                    'Date': row['Date'],
+                    'KPI': row['KPI'],
+                    'Left Strength': next_row.get('Left Strength'),
+                    'Right Strength': next_row.get('Right Strength')})
+
+                i += 2  # skip paired row
+            else:
+                i += 1
+
+        display_df = pd.DataFrame(rows)
+
         st.dataframe(
-            display_df.sort_values(
-            by='Date',
-            ascending=False),
+            display_df.sort_values(by='Date', ascending=False),
             use_container_width=True)
 
     else:
