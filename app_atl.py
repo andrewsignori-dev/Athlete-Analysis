@@ -751,7 +751,7 @@ with tab3:
                 linewidth=2,
                 label='Right')
 
-            ax.set_title(exercise, fontsize=10)
+            ax.set_title(kpi, fontsize=10)
             ax.set_xlabel("")
             ax.set_ylabel("Strength")
 
