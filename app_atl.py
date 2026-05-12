@@ -485,6 +485,8 @@ with tab3:
             errors='coerce',
             dayfirst=True
         )
+        # Format date correctly
+        athlete_tests[date_col] = athlete_tests[date_col].dt.strftime('%d/%m/%Y')
 
         athlete_tests[left_col] = pd.to_numeric(
             athlete_tests[left_col]
