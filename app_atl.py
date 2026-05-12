@@ -481,10 +481,7 @@ with tab2:
             'Date',
             'Exercise name',
             'KPI',
-            'Left Strength',
-            'Right Strength',
-            'Delta Left (t-1)',
-            'Delta Right (t-1)'
+            'ForceFrame'
         ]
 
         st.dataframe(
