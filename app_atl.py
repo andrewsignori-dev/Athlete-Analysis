@@ -105,7 +105,7 @@ def load_data():
             df['Monitoring_Start'],
             errors='coerce',
             dayfirst=True
-        )
+        ).dt.strftime('%Y-%m-%d')
 
     # =====================================================
     # YES / NO CLEANING
