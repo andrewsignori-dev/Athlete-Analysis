@@ -486,6 +486,9 @@ with tab3:
         test_df[name_col] == selected_profile
     ].copy()
 
+    # =====================================================
+    # CHECK DATA
+    # =====================================================
     if not athlete_tests.empty:
 
         # =====================================================
@@ -573,7 +576,7 @@ with tab3:
         )
 
         # =====================================================
-        # DISPLAY TABLE
+        # DISPLAY TEST TABLE
         # =====================================================
         table_df = display_df.copy()
 
@@ -597,9 +600,9 @@ with tab3:
         # =====================================================
         plot_df = display_df.copy()
 
-        # -----------------------------------------------------
+        # =====================================================
         # FUNCTION
-        # -----------------------------------------------------
+        # =====================================================
         def get_strength(df, exercise_name):
 
             temp = df[
@@ -615,18 +618,25 @@ with tab3:
 
             return temp
 
-        # -----------------------------------------------------
-        # EXERCISES
-        # -----------------------------------------------------
-        er_df = get_strength(plot_df, 'HIP ER ISO')
-        ir_df = get_strength(plot_df, 'HIP IR ISO')
+        # =====================================================
+        # EXERCISE TABLES
+        # =====================================================
+        er_df = get_strength(
+            plot_df,
+            'HIP ER ISO'
+        )
+
+        ir_df = get_strength(
+            plot_df,
+            'HIP IR ISO'
+        )
 
         add_sup_df = get_strength(
             plot_df,
             'HIP ADD SUPINE (ANKLE) ISO'
         )
 
-        abb_sup_df = get_strength(
+        abd_sup_df = get_strength(
             plot_df,
             'HIP ABD SUPINE (ANKLE) ISO'
         )
@@ -636,7 +646,7 @@ with tab3:
             'HIP ADD 60° ISO'
         )
 
-        abb60_df = get_strength(
+        abd60_df = get_strength(
             plot_df,
             'HIP ABD 60° ISO'
         )
@@ -649,9 +659,9 @@ with tab3:
         for df_merge in [
             ir_df,
             add_sup_df,
-            abb_sup_df,
+            abd_sup_df,
             add60_df,
-            abb60_df
+            abd60_df
         ]:
 
             ratio_table = ratio_table.merge(
@@ -698,7 +708,9 @@ with tab3:
         # =====================================================
         final_ratio_table = pd.DataFrame({
 
-            'Date': list(ratio_table['Date']) * 3,
+            'Date': (
+                list(ratio_table['Date']) * 3
+            ),
 
             'KPI': (
                 ['ER/IR'] * len(ratio_table) +
@@ -752,7 +764,9 @@ with tab3:
         # =====================================================
         st.markdown("### 📈 Ratio Progression")
 
-        kpis = final_ratio_table['KPI'].dropna().unique()
+        kpis = final_ratio_table[
+            'KPI'
+        ].dropna().unique()
 
         n_cols = 2
 
@@ -774,23 +788,25 @@ with tab3:
                 if kpi_df.empty:
                     continue
 
-                fig, ax = plt.subplots(figsize=(4,3))
+                fig, ax = plt.subplots(
+                    figsize=(4, 3)
+                )
 
                 x = np.arange(len(kpi_df))
 
                 width = 0.35
 
-                # LEFT BARS
+                # LEFT
                 ax.bar(
-                    x - width/2,
+                    x - width / 2,
                     kpi_df['Left'],
                     width,
                     label='Left'
                 )
 
-                # RIGHT BARS
+                # RIGHT
                 ax.bar(
-                    x + width/2,
+                    x + width / 2,
                     kpi_df['Right'],
                     width,
                     label='Right'
@@ -804,11 +820,12 @@ with tab3:
 
                 ax.set_ylabel("Ratio")
 
-                # X LABELS
+                # X AXIS
                 ax.set_xticks(x)
 
                 ax.set_xticklabels(
-                    kpi_df['Date'].dt.strftime('%d/%m/%Y'),
+                    kpi_df['Date']
+                    .dt.strftime('%d/%m/%Y'),
                     rotation=45,
                     ha='right',
                     fontsize=8
@@ -823,11 +840,11 @@ with tab3:
 
                 ax.grid(axis='y')
 
-                # VALUES
+                # VALUE LABELS
                 for idx, val in enumerate(kpi_df['Left']):
 
                     ax.text(
-                        idx - width/2,
+                        idx - width / 2,
                         val,
                         f'{val:.2f}',
                         ha='center',
@@ -838,7 +855,7 @@ with tab3:
                 for idx, val in enumerate(kpi_df['Right']):
 
                     ax.text(
-                        idx + width/2,
+                        idx + width / 2,
                         val,
                         f'{val:.2f}',
                         ha='center',
@@ -848,51 +865,74 @@ with tab3:
 
                 with cols[j]:
                     st.pyplot(fig)
-            # =====================================================
-            # KPI SUMMARY DELTA
-            # =====================================================
-            st.markdown("### 📌 Delta % KPI Progress Summary")
-            summary_rows = []
 
-            for kpi in final_ratio_table['KPI'].dropna().unique():
-                kpi_df = final_ratio_table[
-                final_ratio_table['KPI'] == kpi].sort_values('Date')
-                    
-                if len(kpi_df) < 2:
-                    continue
+        # =====================================================
+        # KPI DELTA SUMMARY
+        # =====================================================
+        st.markdown("### 📌 Delta % KPI Progress Summary")
 
-            # First values
+        summary_rows = []
+
+        for kpi in final_ratio_table['KPI'].dropna().unique():
+
+            kpi_df = final_ratio_table[
+                final_ratio_table['KPI'] == kpi
+            ].sort_values('Date')
+
+            if len(kpi_df) < 2:
+                continue
+
+            # FIRST VALUES
             first_left = kpi_df.iloc[0]['Left']
             first_right = kpi_df.iloc[0]['Right']
 
-            # Last values
+            # LAST VALUES
             last_left = kpi_df.iloc[-1]['Left']
             last_right = kpi_df.iloc[-1]['Right']
 
-            # Delta %
+            # DELTA %
             delta_left = (
-                (last_left - first_left) / first_left * 100
-                if first_left != 0 else np.nan)
+                (last_left - first_left)
+                / first_left * 100
+                if first_left != 0
+                else np.nan
+            )
 
             delta_right = (
-                (last_right - first_right) / first_right * 100
-                if first_right != 0 else np.nan)
+                (last_right - first_right)
+                / first_right * 100
+                if first_right != 0
+                else np.nan
+            )
 
             summary_rows.append({
-                'KPI': kpi,
-                'Delta % Left':
-                round(delta_left, 1),
-                'Delta % Right':
-                round(delta_right, 1)})
 
-            summary_df = pd.DataFrame(summary_rows)
-            st.dataframe(
-                summary_df,
-                use_container_width=True)
+                'KPI': kpi,
+
+                'Delta % Left': round(
+                    delta_left,
+                    1
+                ),
+
+                'Delta % Right': round(
+                    delta_right,
+                    1
+                )
+            })
+
+        summary_df = pd.DataFrame(
+            summary_rows
+        )
+
+        st.dataframe(
+            summary_df,
+            use_container_width=True
+        )
 
     else:
-        st.info("No test data available for this athlete.")
-
+        st.info(
+            "No test data available for this athlete."
+        )
  
 # =========================================================
 # FOOTER
