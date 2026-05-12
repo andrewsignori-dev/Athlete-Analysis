@@ -711,47 +711,67 @@ with tab3:
         plot_df['Date'] = pd.to_datetime(
             plot_df['Date'],
             dayfirst=True,
-            errors='coerce'
-        )
+            errors='coerce')
 
-        for exercise in plot_df['Exercise'].unique():
+        # -----------------------------------------------------
+        # GRID LAYOUT
+        # -----------------------------------------------------
+        exercises = plot_df['Exercise'].dropna().unique()
+        n_cols = 2
 
+        for i in range(0, len(exercises), n_cols):
+            cols = st.columns(n_cols)
+            for j in range(n_cols):
+                if i + j >= len(exercises):
+                    continue
+
+            exercise = exercises[i + j]
+            
             ex_df = plot_df[
-                plot_df['Exercise'] == exercise
-            ].sort_values('Date')
-
+            plot_df['Exercise'] == exercise].sort_values('Date')
+            
             if ex_df.empty:
                 continue
 
-            fig, ax = plt.subplots(figsize=(7,4))
+            fig, ax = plt.subplots(figsize=(4,3))
 
+            # Left
             ax.plot(
                 ex_df['Date'],
                 ex_df['Left Strength'],
                 marker='o',
                 linewidth=2,
-                label='Left Strength'
-            )
+                label='Left')
 
+            # Right
             ax.plot(
                 ex_df['Date'],
                 ex_df['Right Strength'],
                 marker='o',
                 linewidth=2,
-                label='Right Strength'
-            )
+                label='Right')
 
-            ax.set_title(exercise)
-            ax.set_xlabel("Date")
-            ax.set_ylabel("Strength")
+           ax.set_title(exercise, fontsize=10)
+           ax.set_xlabel("")
+           ax.set_ylabel("Strength")
 
-            ax.legend()
-            ax.grid(True)
+           # Rotate dates
+           ax.tick_params(
+               axis='x',
+               rotation=45,
+               labelsize=8)
 
-            st.pyplot(fig)
+           ax.tick_params(
+               axis='y',
+               labelsize=8)
 
-    else:
-        st.info("No test data available for this athlete.")
+           ax.legend(fontsize=8)
+           ax.grid(True)
+
+           with cols[j]:
+               st.pyplot(fig)
+           else:
+st.info("No test data available for this athlete.")
  
 # =========================================================
 # FOOTER
