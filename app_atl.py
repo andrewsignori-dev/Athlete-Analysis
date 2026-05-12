@@ -59,7 +59,7 @@ def load_data():
     # RENAME COLUMNS
     # =====================================================
     rename_dict = {
-        'Date of birth': 'DOB',
+        'Date of birth': 'Date of birth',
         'Height (cm)': 'Height_cm',
         'Weight (kg)': 'Weight_kg',
         'Date start monitoring': 'Monitoring_Start'
@@ -94,9 +94,9 @@ def load_data():
     # =====================================================
     # DATE CLEANING
     # =====================================================
-    if 'DOB' in df.columns:
-        df['DOB'] = pd.to_datetime(
-            df['DOB'],
+    if 'Date of birth' in df.columns:
+        df['Date of birth'] = pd.to_datetime(
+            df['Date of birth'],
             errors='coerce'
         )
 
@@ -291,7 +291,7 @@ st.markdown('---')
 tab1, tab2, tab3 = st.tabs([
     "📊 Main Dashboard",
     "👤 Individual Profile Section",
-    "KPI"
+    "VALD - ForceFrame"
 ])
 
 # =========================================================
