@@ -475,20 +475,28 @@ with tab2:
             )
 
         st.markdown("### ForceFrame Results")
-
-        # Display cleaner dataframe
+        # =========================================================
+        # FORCEFRAME RESULTS
+        # =========================================================
+        # Main columns
         display_cols = [
             'Date',
             'Exercise name',
-            'KPI',
-            'ForceFrame'
-        ]
+            'KPI']
+        # Add all columns AFTER "ForceFrame"
+        forceframe_start = athlete_tests.columns.get_loc('ForceFrame')
 
-        st.dataframe(
-            athlete_tests[display_cols]
-            .sort_values(by='Date', ascending=False),
-            use_container_width=True
-        )
+        forceframe_metrics = athlete_tests.columns[
+        forceframe_start + 1 : forceframe_start + 5].tolist()
+
+        # Final columns
+       display_cols += forceframe_metrics
+
+        # Show dataframe
+        st.dataframe(athlete_tests[display_cols]
+        .sort_values(by='Date', ascending=False),
+        use_container_width=True)
+
 
     else:
         st.info("No test data available for this athlete.")
