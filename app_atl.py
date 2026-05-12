@@ -290,9 +290,10 @@ st.markdown('---')
 # =========================================================
 # DASHBOARD TABS
 # =========================================================
-tab1, tab2 = st.tabs([
+tab1, tab2, tab3 = st.tabs([
     "📊 Main Dashboard",
-    "👤 Individual Profile Section"
+    "👤 Individual Profile Section",
+    "KPI"
 ])
 
 # =========================================================
@@ -435,12 +436,20 @@ with tab2:
 
         st.markdown("### Notes")
         st.info(athlete['Notes'])
+        
+# =========================================================
+# TAB 3
+# =========================================================
+with tab3:
 
-    # =========================================================
-    # TEST RESULTS SECTION
-    # =========================================================
-    st.markdown("---")
     st.subheader("🏋️ Test Results")
+
+    # Make sure athlete is selected (reuse from Tab 2 logic)
+    selected_profile = st.selectbox(
+        "Select Athlete",
+        test_df['Name'].unique(),
+        key="tab3_athlete_select"
+    )
 
     athlete_tests = test_df[test_df['Name'] == selected_profile]
 
@@ -459,6 +468,9 @@ with tab2:
             ascending=False
         ).iloc[0]
 
+        # =========================================================
+        # METRICS
+        # =========================================================
         c1, c2, c3 = st.columns(3)
 
         with c1:
@@ -479,7 +491,7 @@ with tab2:
             )
 
         # =========================================================
-        # CLEAN KPI + FORCEFRAME PAIRING (ROBUST)
+        # CLEAN KPI + FORCEFRAME PAIRING
         # =========================================================
         st.markdown("### ForceFrame Results")
 
@@ -498,9 +510,7 @@ with tab2:
 
             row = df.iloc[i]
 
-            # -----------------------------------------
-            # CASE 1: KPI row with values in SAME row
-            # -----------------------------------------
+            # CASE 1: same row contains values
             if pd.notna(row.get('KPI')) and pd.notna(row.get('Left Strength')):
 
                 rows.append({
@@ -519,9 +529,7 @@ with tab2:
                 i += 1
                 continue
 
-            # -----------------------------------------
-            # CASE 2: KPI row + next row has values
-            # -----------------------------------------
+            # CASE 2: next row contains values
             if pd.notna(row.get('KPI')) and i + 1 < len(df):
 
                 next_row = df.iloc[i + 1]
@@ -534,8 +542,7 @@ with tab2:
                         errors='coerce'
                     ),
                     'Right Strength': pd.to_numeric(
-                        str(next_row.get('Right Strength')).replace(',', '.'),
-                        errors='coerce'
+                        str(next_row.get('Right Strength')).replace(',', '.')
                     )
                 })
 
@@ -557,9 +564,11 @@ with tab2:
             )
 
             # =========================================================
-            # PLOTS PER KPI
+            # PLOTS
             # =========================================================
             st.markdown("### 📈 KPI Progression Over Time")
+
+            import matplotlib.pyplot as plt
 
             for kpi in clean_df['KPI'].dropna().unique():
 
