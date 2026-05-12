@@ -535,6 +535,10 @@ with tab3:
         # =====================================================
         # DISPLAY TABLE
         # =====================================================
+        # Clean exercise names
+        display_df['Exercise'] = (
+            display_df['Exercise'].astype(str).str.strip()
+        )
         table_df = display_df.copy()
 
         table_df['Date'] = (
