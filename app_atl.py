@@ -444,63 +444,76 @@ with tab3:
 
     st.subheader("🏋️ Athlete Test Overview")
 
-    # Athlete selector (independent of other tabs)
-    selected_profile = st.selectbox(
-        "Select Athlete",
-        test_df['Name'].unique(),
-        key="tab3_athlete_select"
+    # Clean column names
+    test_df.columns = (
+        test_df.columns
+        .str.strip()
+        .str.replace('\n', ' ', regex=False)
+        .str.replace(r'\s+', ' ', regex=True)
     )
 
-    athlete_tests = test_df[test_df['Name'] == selected_profile].copy()
+    # Detect columns automatically
+    left_col = [c for c in test_df.columns if 'Left Strength' in c][0]
+    right_col = [c for c in test_df.columns if 'Right Strength' in c][0]
+
+    selected_profile = st.selectbox(
+        "Select Athlete",
+        test_df['Name'].dropna().unique(),
+        key="tab3_athlete"
+    )
+
+    athlete_tests = test_df[
+        test_df['Name'] == selected_profile
+    ].copy()
 
     if not athlete_tests.empty:
 
-        # -------------------------------------------------
-        # CLEAN DATA
-        # -------------------------------------------------
         athlete_tests['Date'] = pd.to_datetime(
             athlete_tests['Date'],
             errors='coerce',
             dayfirst=True
         )
 
-        # Convert values (handles comma decimals)
-        athlete_tests['Left Strength'] = pd.to_numeric(
-            athlete_tests['Left Strength'].astype(str).str.replace(',', '.'),
+        athlete_tests[left_col] = pd.to_numeric(
+            athlete_tests[left_col]
+            .astype(str)
+            .str.replace(',', '.'),
             errors='coerce'
         )
 
-        athlete_tests['Right Strength'] = pd.to_numeric(
-            athlete_tests['Right Strength'].astype(str).str.replace(',', '.'),
+        athlete_tests[right_col] = pd.to_numeric(
+            athlete_tests[right_col]
+            .astype(str)
+            .str.replace(',', '.'),
             errors='coerce'
         )
 
-        # -------------------------------------------------
-        # FILTER ONLY VALID TEST ROWS
-        # (rows where exercise exists)
-        # -------------------------------------------------
         display_df = athlete_tests[
             athlete_tests['Exercise name'].notna()
         ][
             [
                 'Date',
                 'Exercise name',
-                'Left Strength',
-                'Right Strength'
+                left_col,
+                right_col
             ]
         ]
 
-        # -------------------------------------------------
-        # SHOW TABLE
-        # -------------------------------------------------
+        display_df = display_df.rename(columns={
+            left_col: 'Left Strength',
+            right_col: 'Right Strength'
+        })
+
         st.dataframe(
-            display_df.sort_values(by='Date', ascending=False),
+            display_df.sort_values(
+                by='Date',
+                ascending=False
+            ),
             use_container_width=True
         )
 
     else:
         st.info("No test data available for this athlete.")
-       
  
 # =========================================================
 # FOOTER
