@@ -441,9 +441,6 @@ with tab2:
 with tab3:
 
     st.subheader("🏋️ Athlete Test History")
-    athlete_tests = test_df[
-    test_df[name_col] == selected_profile
-    ].copy()
 
     # =====================================================
     # COLUMN DETECTION
@@ -469,6 +466,10 @@ with tab3:
         c for c in test_df.columns
         if 'Right Strength' in c
     ][0]
+
+    athlete_tests = test_df[
+    test_df[name_col] == selected_profile
+    ].copy()
     
     # =====================================================
     # ATHLETE SUMMARY
