@@ -963,14 +963,14 @@ with tab4:
     # KEISER COLUMN INDEXES
     # =====================================================
     # SJ
-    sj_load_col = test_df.columns[12]
-    sj_power_l_col = test_df.columns[13]
-    sj_power_r_col = test_df.columns[14]
+    sj_load_col = test_df.columns[11]
+    sj_power_l_col = test_df.columns[12]
+    sj_power_r_col = test_df.columns[13]
 
     # CMJ
-    cmj_load_col = test_df.columns[16]
-    cmj_power_l_col = test_df.columns[17]
-    cmj_power_r_col = test_df.columns[18]
+    cmj_load_col = test_df.columns[15]
+    cmj_power_l_col = test_df.columns[16]
+    cmj_power_r_col = test_df.columns[17]
 
     # =====================================================
     # ATHLETE SELECTOR
