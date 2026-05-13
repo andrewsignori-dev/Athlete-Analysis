@@ -1425,9 +1425,9 @@ with tab4:
     # =====================================================
     # 2. LEFT LEG COMPARISON
     # =====================================================
-    sj_left = plot_df[plot_df['Type'] == 'SJ'].sort_values('Load (kg)')
+    sj_left = plot_df[plot_df['Exercise'] == 'KEISER SJ SL'].sort_values('Load (kg)')
 
-    cmj_left = plot_df[plot_df['Type'] == 'CMJ'].sort_values('Load (kg)')
+    cmj_left = plot_df[plot_df['Exercise'] == 'KEISER CMJ SL'].sort_values('Load (kg)')
 
     axes[1].plot(
         sj_left['Load (kg)'],
