@@ -933,7 +933,6 @@ with tab3:
 # TAB 4 - KEISER
 # =====================================================
 with tab4:
-
     st.subheader("🏋️ KEISER Test History")
 
     # =====================================================
@@ -980,39 +979,6 @@ with tab4:
         errors='coerce',
         dayfirst=True
     )
-
-    # =====================================================
-    # ATHLETE SUMMARY
-    # =====================================================
-    n_tests = keiser_display['Exercise'].nunique()
-
-    first_test = keiser_display['Date'].min()
-
-    last_test = keiser_display['Date'].max()
-
-    c1, c2, c3 = st.columns(3)
-
-    with c1:
-        st.metric(
-            "Unique Tests",
-            n_tests
-        )
-
-    with c2:
-        st.metric(
-            "First Test",
-            first_test.strftime('%Y-%m-%d')
-            if pd.notnull(first_test)
-            else "-"
-        )
-
-    with c3:
-        st.metric(
-            "Last Test",
-            last_test.strftime('%Y-%m-%d')
-            if pd.notnull(last_test)
-            else "-"
-        )
 
     # =====================================================
     # KEISER COLUMN INDEXES
@@ -1147,7 +1113,33 @@ with tab4:
     keiser_display = keiser_display.sort_values(
         by=['Type', 'Load (kg)']
     )
+    
+    # =====================================================
+    # ATHLETE SUMMARY
+    # =====================================================
+    n_tests = keiser_display['Exercise'].nunique()
+    first_test = keiser_display['Date'].min()
+    last_test = keiser_display['Date'].max()
 
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        st.metric(
+            "Unique Tests",
+            n_tests)
+    with c2:
+        st.metric(
+            "First Test",
+            first_test.strftime('%Y-%m-%d')
+            if pd.notnull(first_test)
+            else "-")
+    with c3:
+        st.metric(
+            "Last Test",
+            last_test.strftime('%Y-%m-%d')
+            if pd.notnull(last_test)
+            else "-")
+        
     # =====================================================
     # DISPLAY TABLE
     # =====================================================
