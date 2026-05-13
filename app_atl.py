@@ -97,8 +97,10 @@ def load_data():
     if 'Date of birth' in df.columns:
         df['Date of birth'] = pd.to_datetime(
             df['Date of birth'],
-            errors='coerce'
-        )
+            errors='coerce',
+            dayfirst=True
+        ).dt.strftime('%Y-%m-%d')
+        
 
     if 'Monitoring_Start' in df.columns:
         df['Monitoring_Start'] = pd.to_datetime(
