@@ -994,22 +994,6 @@ with tab4:
     cmj_power_r_col = test_df.columns[17]
 
     # =====================================================
-    # ATHLETE SELECTOR
-    # =====================================================
-    selected_profile = st.selectbox(
-        "Select Athlete",
-        sorted(test_df[name_col].dropna().unique()),
-        key="tab4_athlete"
-    )
-
-    # =====================================================
-    # FILTER ATHLETE
-    # =====================================================
-    athlete_df = test_df[
-        test_df[name_col] == selected_profile
-    ].copy()
-
-    # =====================================================
     # CLEAN DATE
     # =====================================================
     athlete_df[date_col] = pd.to_datetime(
