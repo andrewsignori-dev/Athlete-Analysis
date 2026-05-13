@@ -9,6 +9,7 @@ import altair as alt
 from io import BytesIO
 from fpdf import FPDF
 from datetime import datetime
+import numpy as np
 
 # =========================================================
 # PAGE CONFIG
