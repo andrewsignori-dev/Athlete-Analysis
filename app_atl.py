@@ -550,16 +550,11 @@ with tab3:
         # =====================================================
         # BASE TABLE
         # =====================================================
-        display_df = athlete_tests[
-            athlete_tests[exercise_col].notna()
+        display_df = athlete_tests[(athlete_tests[exercise_col].notna())
+        &(athlete_tests[left_col].notna()|athlete_tests[right_col].notna())
         ][
-            [
-                date_col,
-                exercise_col,
-                left_col,
-                right_col
-            ]
-        ].copy()
+        [
+            date_col,exercise_col,left_col,right_col]].copy()
 
         display_df = display_df.rename(columns={
             date_col: 'Date',
