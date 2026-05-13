@@ -929,13 +929,10 @@ with tab3:
             "No test data available for this athlete."
         )
         
-# =========================================================
+# =====================================================
 # TAB 4 - KEISER
-# =========================================================
+# =====================================================
 with tab4:
-
-    import matplotlib.pyplot as plt
-    import numpy as np
 
     st.subheader("🏋️ KEISER Test History")
 
@@ -958,6 +955,64 @@ with tab4:
         c for c in test_df.columns
         if 'Exercise name' in str(c)
     ][0]
+
+    # =====================================================
+    # ATHLETE SELECTOR
+    # =====================================================
+    selected_profile = st.selectbox(
+        "Select Athlete",
+        sorted(test_df[name_col].dropna().unique()),
+        key="tab4_athlete"
+    )
+
+    # =====================================================
+    # FILTER ATHLETE
+    # =====================================================
+    athlete_df = test_df[
+        test_df[name_col] == selected_profile
+    ].copy()
+
+    # =====================================================
+    # CLEAN DATE
+    # =====================================================
+    athlete_df[date_col] = pd.to_datetime(
+        athlete_df[date_col],
+        errors='coerce',
+        dayfirst=True
+    )
+
+    # =====================================================
+    # ATHLETE SUMMARY
+    # =====================================================
+    n_tests = keiser_display['Exercise'].nunique()
+
+    first_test = keiser_display['Date'].min()
+
+    last_test = keiser_display['Date'].max()
+
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        st.metric(
+            "Unique Tests",
+            n_tests
+        )
+
+    with c2:
+        st.metric(
+            "First Test",
+            first_test.strftime('%Y-%m-%d')
+            if pd.notnull(first_test)
+            else "-"
+        )
+
+    with c3:
+        st.metric(
+            "Last Test",
+            last_test.strftime('%Y-%m-%d')
+            if pd.notnull(last_test)
+            else "-"
+        )
 
     # =====================================================
     # KEISER COLUMN INDEXES
