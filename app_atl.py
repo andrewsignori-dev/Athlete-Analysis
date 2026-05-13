@@ -930,325 +930,281 @@ with tab3:
         )
         
 # =========================================================
-# TAB 4 - KEISER TESTS
+# TAB 4 - KEISER
 # =========================================================
 with tab4:
-    st.subheader("⚡ Keiser Test History (Power)")
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    st.subheader("🏋️ KEISER Test History")
 
     # =====================================================
     # COLUMN DETECTION
     # =====================================================
-    name_col = [c for c in keiser_df.columns if 'Name' in c][0]
+    name_col = [c for c in test_df.columns if 'Name' in c][0]
 
     date_col = [
-        c for c in keiser_df.columns
-        if c.endswith('Date')
+        c for c in test_df.columns
+        if c == 'Date'
     ][0]
 
-    # SJ
-    sj_load_col = [
-        c for c in keiser_df.columns
-        if 'SJ' in c and 'Load' in c
+    exercise_col = [
+        c for c in test_df.columns
+        if 'Exercise name' in c
     ][0]
 
-    sj_left_col = [
-        c for c in keiser_df.columns
-        if 'SJ' in c and 'Power L' in c
-    ][0]
+    # =====================================================
+    # KEISER COLUMNS
+    # =====================================================
+    sj_load_col = test_df.columns[13]
+    sj_power_l_col = test_df.columns[14]
+    sj_power_r_col = test_df.columns[15]
 
-    sj_right_col = [
-        c for c in keiser_df.columns
-        if 'SJ' in c and 'Power R' in c
-    ][0]
-
-    # CMJ
-    cmj_load_col = [
-        c for c in keiser_df.columns
-        if 'CMJ' in c and 'Load' in c
-    ][0]
-
-    cmj_left_col = [
-        c for c in keiser_df.columns
-        if 'CMJ' in c and 'Power L' in c
-    ][0]
-
-    cmj_right_col = [
-        c for c in keiser_df.columns
-        if 'CMJ' in c and 'Power R' in c
-    ][0]
+    cmj_load_col = test_df.columns[17]
+    cmj_power_l_col = test_df.columns[18]
+    cmj_power_r_col = test_df.columns[19]
 
     # =====================================================
     # ATHLETE SELECTOR
     # =====================================================
-    selected_keiser = st.selectbox(
+    selected_profile = st.selectbox(
         "Select Athlete",
-        sorted(keiser_df[name_col].dropna().unique()),
+        sorted(test_df[name_col].dropna().unique()),
         key="tab4_athlete"
     )
 
     # =====================================================
-    # FILTER ATHLETE
+    # FILTER KEISER DATA
     # =====================================================
-    athlete_keiser = keiser_df[
-        keiser_df[name_col] == selected_keiser
+    keiser_df = test_df[
+        (
+            test_df[name_col] == selected_profile
+        )
+        &
+        (
+            test_df[exercise_col]
+            .astype(str)
+            .str.contains(
+                'KEISER',
+                case=False,
+                na=False
+            )
+        )
     ].copy()
 
     # =====================================================
     # CHECK DATA
     # =====================================================
-    if not athlete_keiser.empty:
+    if not keiser_df.empty:
 
         # =====================================================
-        # CLEAN DATA
+        # CLEAN DATE
         # =====================================================
-        athlete_keiser[date_col] = pd.to_datetime(
-            athlete_keiser[date_col],
+        keiser_df[date_col] = pd.to_datetime(
+            keiser_df[date_col],
             errors='coerce',
             dayfirst=True
         )
 
+        # =====================================================
+        # CLEAN NUMERIC COLUMNS
+        # =====================================================
         numeric_cols = [
+
             sj_load_col,
-            sj_left_col,
-            sj_right_col,
+            sj_power_l_col,
+            sj_power_r_col,
+
             cmj_load_col,
-            cmj_left_col,
-            cmj_right_col
+            cmj_power_l_col,
+            cmj_power_r_col
         ]
 
         for col in numeric_cols:
 
-            athlete_keiser[col] = pd.to_numeric(
-                athlete_keiser[col]
+            keiser_df[col] = pd.to_numeric(
+                keiser_df[col]
                 .astype(str)
                 .str.replace(',', '.'),
                 errors='coerce'
             )
 
         # =====================================================
-        # SUMMARY
+        # BUILD DISPLAY TABLE
         # =====================================================
-        n_tests = athlete_keiser[date_col].nunique()
-
-        first_test = athlete_keiser[date_col].min()
-
-        last_test = athlete_keiser[date_col].max()
-
-        c1, c2, c3 = st.columns(3)
-
-        with c1:
-            st.metric(
-                "Number of Tests",
-                n_tests
-            )
-
-        with c2:
-            st.metric(
-                "First Test",
-                first_test.strftime('%Y-%m-%d')
-                if pd.notnull(first_test)
-                else "-"
-            )
-
-        with c3:
-            st.metric(
-                "Last Test",
-                last_test.strftime('%Y-%m-%d')
-                if pd.notnull(last_test)
-                else "-"
-            )
-
-        # =====================================================
-        # BASE TABLE
-        # =====================================================
-        keiser_display = athlete_keiser[
+        sj_df = keiser_df[
+            keiser_df[exercise_col]
+            .astype(str)
+            .str.contains('SJ', case=False, na=False)
+        ][
             [
                 date_col,
-
+                exercise_col,
                 sj_load_col,
-                sj_left_col,
-                sj_right_col,
-
-                cmj_load_col,
-                cmj_left_col,
-                cmj_right_col
+                sj_power_l_col,
+                sj_power_r_col
             ]
         ].copy()
 
-        keiser_display = keiser_display.rename(columns={
+        sj_df.columns = [
+            'Date',
+            'Exercise',
+            'Load (kg)',
+            'Power Left',
+            'Power Right'
+        ]
 
-            date_col: 'Date',
-
-            sj_load_col: 'SJ Load',
-            sj_left_col: 'SJ Power Left',
-            sj_right_col: 'SJ Power Right',
-
-            cmj_load_col: 'CMJ Load',
-            cmj_left_col: 'CMJ Power Left',
-            cmj_right_col: 'CMJ Power Right'
-        })
+        sj_df['Type'] = 'SJ'
 
         # =====================================================
-        # CALCULATE DELTAS
+        # CMJ TABLE
         # =====================================================
-        keiser_display['SJ Delta %'] = (
-            (
-                keiser_display['SJ Power Left']
-                - keiser_display['SJ Power Right']
-            )
-            /
-            keiser_display[
-                ['SJ Power Left', 'SJ Power Right']
-            ].mean(axis=1)
-        ) * 100
+        cmj_df = keiser_df[
+            keiser_df[exercise_col]
+            .astype(str)
+            .str.contains('CMJ', case=False, na=False)
+        ][
+            [
+                date_col,
+                exercise_col,
+                cmj_load_col,
+                cmj_power_l_col,
+                cmj_power_r_col
+            ]
+        ].copy()
 
-        keiser_display['CMJ Delta %'] = (
-            (
-                keiser_display['CMJ Power Left']
-                - keiser_display['CMJ Power Right']
-            )
-            /
-            keiser_display[
-                ['CMJ Power Left', 'CMJ Power Right']
-            ].mean(axis=1)
-        ) * 100
+        cmj_df.columns = [
+            'Date',
+            'Exercise',
+            'Load (kg)',
+            'Power Left',
+            'Power Right'
+        ]
+
+        cmj_df['Type'] = 'CMJ'
+
+        # =====================================================
+        # COMBINE
+        # =====================================================
+        display_df = pd.concat(
+            [sj_df, cmj_df],
+            ignore_index=True
+        )
+
+        display_df = display_df.dropna(
+            subset=[
+                'Load (kg)',
+                'Power Left',
+                'Power Right'
+            ],
+            how='all'
+        )
+
+        display_df = display_df.sort_values(
+            by='Date'
+        )
 
         # =====================================================
         # DISPLAY TABLE
         # =====================================================
-        display_table = keiser_display.copy()
+        table_df = display_df.copy()
 
-        display_table['Date'] = (
-            display_table['Date']
+        table_df['Date'] = (
+            table_df['Date']
             .dt.strftime('%d/%m/%Y')
         )
 
-        st.markdown("### 📋 Keiser Results")
+        st.markdown("### 📋 KEISER Results")
 
         st.dataframe(
-            display_table.sort_values(
-                by='Date',
-                ascending=False
-            ),
+            table_df,
             use_container_width=True
         )
 
         # =====================================================
-        # KPI TABLE
+        # PLOTS
         # =====================================================
-        final_kpi_table = pd.DataFrame({
+        st.markdown("### 📈 KEISER Power Progression")
 
-            'Date': (
-                list(keiser_display['Date']) * 2
-            ),
-
-            'KPI': (
-                ['SJ Power'] * len(keiser_display) +
-                ['CMJ Power'] * len(keiser_display)
-            ),
-
-            'Left': (
-                list(keiser_display['SJ Power Left']) +
-                list(keiser_display['CMJ Power Left'])
-            ),
-
-            'Right': (
-                list(keiser_display['SJ Power Right']) +
-                list(keiser_display['CMJ Power Right'])
-            )
-        })
-
-        final_kpi_table = (
-            final_kpi_table
-            .dropna(subset=['Left', 'Right'])
-            .sort_values(by='Date')
-        )
-
-        # =====================================================
-        # DISPLAY KPI TABLE
-        # =====================================================
-        kpi_display = final_kpi_table.copy()
-
-        kpi_display['Date'] = (
-            kpi_display['Date']
-            .dt.strftime('%d/%m/%Y')
-        )
-
-        st.markdown("### 📊 Keiser KPI Table")
-
-        st.dataframe(
-            kpi_display,
-            use_container_width=True
-        )
-
-        # =====================================================
-        # BAR PLOTS
-        # =====================================================
-        st.markdown("### 📈 Keiser Progression")
-
-        kpis = final_kpi_table[
-            'KPI'
+        exercises = display_df[
+            'Exercise'
         ].dropna().unique()
 
         n_cols = 2
 
-        for i in range(0, len(kpis), n_cols):
+        for i in range(0, len(exercises), n_cols):
 
             cols = st.columns(n_cols)
 
             for j in range(n_cols):
 
-                if i + j >= len(kpis):
+                if i + j >= len(exercises):
                     continue
 
-                kpi = kpis[i + j]
+                ex = exercises[i + j]
 
-                kpi_df = final_kpi_table[
-                    final_kpi_table['KPI'] == kpi
-                ].sort_values('Date')
+                ex_df = display_df[
+                    display_df['Exercise'] == ex
+                ].sort_values('Load (kg)')
 
-                if kpi_df.empty:
+                if ex_df.empty:
                     continue
 
                 fig, ax = plt.subplots(
-                    figsize=(4, 3)
+                    figsize=(5, 3)
                 )
 
-                x = np.arange(len(kpi_df))
+                x = np.arange(len(ex_df))
 
                 width = 0.35
 
-                # LEFT
+                # =====================================================
+                # LEFT BARS
+                # =====================================================
                 ax.bar(
                     x - width / 2,
-                    kpi_df['Left'],
+                    ex_df['Power Left'],
                     width,
                     label='Left'
                 )
 
-                # RIGHT
+                # =====================================================
+                # RIGHT BARS
+                # =====================================================
                 ax.bar(
                     x + width / 2,
-                    kpi_df['Right'],
+                    ex_df['Power Right'],
                     width,
                     label='Right'
                 )
 
+                # =====================================================
+                # TITLE
+                # =====================================================
                 ax.set_title(
-                    kpi,
+                    ex,
                     fontsize=10
                 )
 
-                ax.set_ylabel("Power")
+                ax.set_ylabel(
+                    "Power"
+                )
 
+                # =====================================================
+                # X AXIS
+                # =====================================================
                 ax.set_xticks(x)
 
                 ax.set_xticklabels(
-                    kpi_df['Date']
-                    .dt.strftime('%d/%m/%Y'),
-                    rotation=45,
-                    ha='right',
+                    ex_df['Load (kg)']
+                    .astype(int)
+                    .astype(str),
                     fontsize=8
+                )
+
+                ax.set_xlabel(
+                    "Load (kg)"
                 )
 
                 ax.tick_params(
@@ -1256,12 +1212,20 @@ with tab4:
                     labelsize=8
                 )
 
-                ax.legend(fontsize=8)
+                ax.legend(
+                    fontsize=8
+                )
 
-                ax.grid(axis='y')
+                ax.grid(
+                    axis='y'
+                )
 
-                # VALUES
-                for idx, val in enumerate(kpi_df['Left']):
+                # =====================================================
+                # VALUE LABELS
+                # =====================================================
+                for idx, val in enumerate(
+                    ex_df['Power Left']
+                ):
 
                     ax.text(
                         idx - width / 2,
@@ -1272,7 +1236,9 @@ with tab4:
                         fontsize=7
                     )
 
-                for idx, val in enumerate(kpi_df['Right']):
+                for idx, val in enumerate(
+                    ex_df['Power Right']
+                ):
 
                     ax.text(
                         idx + width / 2,
@@ -1284,33 +1250,42 @@ with tab4:
                     )
 
                 with cols[j]:
+
                     st.pyplot(fig)
 
         # =====================================================
         # DELTA SUMMARY
         # =====================================================
         st.markdown(
-            "### 📌 Delta % Progress Summary"
+            "### 📌 KEISER Delta % Summary"
         )
 
         summary_rows = []
 
-        for kpi in final_kpi_table[
-            'KPI'
-        ].dropna().unique():
+        for ex in exercises:
 
-            kpi_df = final_kpi_table[
-                final_kpi_table['KPI'] == kpi
-            ].sort_values('Date')
+            ex_df = display_df[
+                display_df['Exercise'] == ex
+            ].sort_values('Load (kg)')
 
-            if len(kpi_df) < 2:
+            if len(ex_df) < 2:
                 continue
 
-            first_left = kpi_df.iloc[0]['Left']
-            first_right = kpi_df.iloc[0]['Right']
+            first_left = ex_df.iloc[0][
+                'Power Left'
+            ]
 
-            last_left = kpi_df.iloc[-1]['Left']
-            last_right = kpi_df.iloc[-1]['Right']
+            last_left = ex_df.iloc[-1][
+                'Power Left'
+            ]
+
+            first_right = ex_df.iloc[0][
+                'Power Right'
+            ]
+
+            last_right = ex_df.iloc[-1][
+                'Power Right'
+            ]
 
             delta_left = (
                 (
@@ -1332,7 +1307,7 @@ with tab4:
 
             summary_rows.append({
 
-                'KPI': kpi,
+                'Exercise': ex,
 
                 'Delta % Left': round(
                     delta_left,
@@ -1357,9 +1332,8 @@ with tab4:
     else:
 
         st.info(
-            "No Keiser test data available for this athlete."
+            "No KEISER data available for this athlete."
         )
-
 
 
 # =========================================================
