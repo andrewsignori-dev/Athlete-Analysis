@@ -1386,9 +1386,9 @@ with tab4:
     # =====================================================
     # DL COMPARISON
     # =====================================================
-    sj_dl = dl_df[dl_df['Type'] == 'SJ'].sort_values('Load (kg)')
+    sj_dl = dl_df[dl_df['Exercise'] == 'KESIER SJ DL'].sort_values('Load (kg)')
 
-    cmj_dl = dl_df[dl_df['Type'] == 'CMJ'].sort_values('Load (kg)')
+    cmj_dl = dl_df[dl_df['Exercise'] == 'ESIER CMJ DL'].sort_values('Load (kg)')
 
     axes[0].plot(
         sj_dl['Load (kg)'],
