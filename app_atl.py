@@ -933,10 +933,6 @@ with tab3:
 # TAB 4 - KEISER
 # =========================================================
 with tab4:
-
-    import matplotlib.pyplot as plt
-    import numpy as np
-
     st.subheader("🏋️ KEISER Test History")
 
     # =====================================================
@@ -963,13 +959,13 @@ with tab4:
     # =====================================================
     # KEISER COLUMNS
     # =====================================================
-    sj_load_col = test_df.columns[13]
-    sj_power_l_col = test_df.columns[14]
-    sj_power_r_col = test_df.columns[15]
+    sj_load_col = test_df.columns[12]
+    sj_power_l_col = test_df.columns[13]
+    sj_power_r_col = test_df.columns[14]
 
-    cmj_load_col = test_df.columns[17]
-    cmj_power_l_col = test_df.columns[18]
-    cmj_power_r_col = test_df.columns[19]
+    cmj_load_col = test_df.columns[16]
+    cmj_power_l_col = test_df.columns[17]
+    cmj_power_r_col = test_df.columns[18]
 
     # =====================================================
     # ATHLETE SELECTOR
