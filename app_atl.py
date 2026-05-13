@@ -1450,9 +1450,13 @@ with tab4:
    # =====================================================
    # 3. RIGHT LEG COMPARISON
    # =====================================================
-   axes[2].plot(sj_left['Load (kg)'],sj_left['Power Right'],marker='o',label='SJ Right')
+   axes[2].plot(
+       sj_left['Load (kg)'],
+       sj_left['Power Right'],
+       marker='o',
+       label='SJ Right')
 
-    axes[2].plot(
+   axes[2].plot(
         cmj_left['Load (kg)'],
         cmj_left['Power Right'],
         marker='o',
