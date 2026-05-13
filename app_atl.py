@@ -944,9 +944,16 @@ with tab4:
     # =====================================================
     name_col = [c for c in test_df.columns if 'Name' in c][0]
 
-    date_col = [
-    c for c in test_df.columns
-    if str(c).strip() == 'Date']
+
+    date_col = [c for c in test_df.columns if str(c).strip() == 'Date']
+    if len(date_col) > 0:
+        date_col = date_col[0]
+    else:
+        date_candidates = [
+        c for c in test_df.columns
+        if 'Date' in str(c)]
+
+    date_col = date_candidates[-1]
 
     exercise_col = [
         c for c in test_df.columns
