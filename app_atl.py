@@ -945,14 +945,12 @@ with tab4:
     name_col = [c for c in test_df.columns if 'Name' in c][0]
 
     date_col = [
-        c for c in test_df.columns
-        if c == 'Date' in str(c)
-    ][0]
+        c for c in test_df.columns if c == 'Date' in str(c)][1]
 
     exercise_col = [
         c for c in test_df.columns
         if 'Exercise name' in c
-    ][1]
+    ][0]
 
     # =====================================================
     # KEISER COLUMNS
