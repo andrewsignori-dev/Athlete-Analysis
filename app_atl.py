@@ -1354,6 +1354,121 @@ with tab4:
         summary_df,
         use_container_width=True
     )
+    
+    # =====================================================
+    # SJ vs CMJ LINE PLOTS
+    # =====================================================
+    st.markdown("### 📈 SJ vs CMJ Comparison")
+
+    # =====================================================
+    # CLEAN DATA
+    # =====================================================
+    plot_df = keiser_display.copy()
+    plot_df = plot_df.sort_values(by='Load (kg)')
+
+    # =====================================================
+    # DL DATA
+    # =====================================================
+    dl_df = plot_df[plot_df['Exercise'].astype(str)
+    .str.contains('DL', case=False, na=False)]
+
+    # =====================================================
+    # SL DATA
+    # =====================================================
+    sl_df = plot_df[plot_df['Exercise'].astype(str)
+    .str.contains('SL', case=False, na=False)]
+
+    # =====================================================
+    # FIGURE
+    # =====================================================
+    fig, axes = plt.subplots(1,3,figsize=(18, 5))
+
+    # =====================================================
+    # DL COMPARISON
+    # =====================================================
+    sj_dl = dl_df[dl_df['Type'] == 'SJ'].sort_values('Load (kg)')
+
+    cmj_dl = dl_df[dl_df['Type'] == 'CMJ'].sort_values('Load (kg)')
+
+    axes[0].plot(
+        sj_dl['Load (kg)'],
+        sj_dl['Power Left'],
+        marker='o',
+        label='SJ Left')
+
+    axes[0].plot(
+        sj_dl['Load (kg)'],
+        sj_dl['Power Right'],
+        marker='o',
+        linestyle='--',
+        label='SJ Right')
+
+    axes[0].plot(
+        cmj_dl['Load (kg)'],
+        cmj_dl['Power Left'],
+        marker='o',
+        label='CMJ Left')
+
+    axes[0].plot(
+        cmj_dl['Load (kg)'],
+        cmj_dl['Power Right'],
+        marker='o',
+        linestyle='--',
+        label='CMJ Right')
+
+    axes[0].set_title("DL Comparison")
+    axes[0].set_xlabel("Load (kg)")
+    axes[0].set_ylabel("Power")
+    axes[0].grid(True)
+    axes[0].legend(fontsize=8)
+
+    # =====================================================
+    # 2. LEFT LEG COMPARISON
+    # =====================================================
+    sj_left = plot_df[plot_df['Type'] == 'SJ'].sort_values('Load (kg)')
+
+    cmj_left = plot_df[plot_df['Type'] == 'CMJ'].sort_values('Load (kg)')
+
+    axes[1].plot(
+        sj_left['Load (kg)'],
+        sj_left['Power Left'],
+        marker='o',
+        label='SJ Left')
+
+    axes[1].plot(
+        cmj_left['Load (kg)'],
+        cmj_left['Power Left'],
+        marker='o',
+        label='CMJ Left')
+
+    axes[1].set_title("Left Leg Comparison")
+    axes[1].set_xlabel("Load (kg)")
+    axes[1].set_ylabel("Power")
+    axes[1].grid(True)
+    axes[1].legend(fontsize=8)
+
+   # =====================================================
+   # 3. RIGHT LEG COMPARISON
+   # =====================================================
+   axes[2].plot(sj_left['Load (kg)'],sj_left['Power Right'],marker='o',label='SJ Right')
+
+    axes[2].plot(
+        cmj_left['Load (kg)'],
+        cmj_left['Power Right'],
+        marker='o',
+        label='CMJ Right')
+
+    axes[2].set_title("Right Leg Comparison")
+    axes[2].set_xlabel("Load (kg)")
+    axes[2].set_ylabel("Power")
+    axes[2].grid(True)
+    axes[2].legend(fontsize=8)
+
+    # =====================================================
+    # DISPLAY
+    # =====================================================
+    plt.tight_layout()
+    st.pyplot(fig)
 
     # =====================================================
     # NO DATA
