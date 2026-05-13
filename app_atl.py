@@ -946,13 +946,13 @@ with tab4:
 
     date_col = [
         c for c in test_df.columns
-        if c == 'Date'
+        if c == 'Date' in str(c)
     ][0]
 
     exercise_col = [
         c for c in test_df.columns
         if 'Exercise name' in c
-    ][0]
+    ][1]
 
     # =====================================================
     # KEISER COLUMNS
