@@ -441,11 +441,7 @@ with tab2:
 # TAB 3
 # =========================================================
 with tab3:
-
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-    st.subheader("🏋️ Athlete Test History")
+    st.subheader("🏋️ VALD Test History (Strength)")
 
     # =====================================================
     # COLUMN DETECTION
@@ -930,7 +926,440 @@ with tab3:
         st.info(
             "No test data available for this athlete."
         )
- 
+        
+# =========================================================
+# TAB 4 - KEISER TESTS
+# =========================================================
+with tab4:
+    st.subheader("⚡ Keiser Test History (Power)")
+
+    # =====================================================
+    # COLUMN DETECTION
+    # =====================================================
+    name_col = [c for c in keiser_df.columns if 'Name' in c][0]
+
+    date_col = [
+        c for c in keiser_df.columns
+        if c.endswith('Date')
+    ][0]
+
+    # SJ
+    sj_load_col = [
+        c for c in keiser_df.columns
+        if 'SJ' in c and 'Load' in c
+    ][0]
+
+    sj_left_col = [
+        c for c in keiser_df.columns
+        if 'SJ' in c and 'Power L' in c
+    ][0]
+
+    sj_right_col = [
+        c for c in keiser_df.columns
+        if 'SJ' in c and 'Power R' in c
+    ][0]
+
+    # CMJ
+    cmj_load_col = [
+        c for c in keiser_df.columns
+        if 'CMJ' in c and 'Load' in c
+    ][0]
+
+    cmj_left_col = [
+        c for c in keiser_df.columns
+        if 'CMJ' in c and 'Power L' in c
+    ][0]
+
+    cmj_right_col = [
+        c for c in keiser_df.columns
+        if 'CMJ' in c and 'Power R' in c
+    ][0]
+
+    # =====================================================
+    # ATHLETE SELECTOR
+    # =====================================================
+    selected_keiser = st.selectbox(
+        "Select Athlete",
+        sorted(keiser_df[name_col].dropna().unique()),
+        key="tab4_athlete"
+    )
+
+    # =====================================================
+    # FILTER ATHLETE
+    # =====================================================
+    athlete_keiser = keiser_df[
+        keiser_df[name_col] == selected_keiser
+    ].copy()
+
+    # =====================================================
+    # CHECK DATA
+    # =====================================================
+    if not athlete_keiser.empty:
+
+        # =====================================================
+        # CLEAN DATA
+        # =====================================================
+        athlete_keiser[date_col] = pd.to_datetime(
+            athlete_keiser[date_col],
+            errors='coerce',
+            dayfirst=True
+        )
+
+        numeric_cols = [
+            sj_load_col,
+            sj_left_col,
+            sj_right_col,
+            cmj_load_col,
+            cmj_left_col,
+            cmj_right_col
+        ]
+
+        for col in numeric_cols:
+
+            athlete_keiser[col] = pd.to_numeric(
+                athlete_keiser[col]
+                .astype(str)
+                .str.replace(',', '.'),
+                errors='coerce'
+            )
+
+        # =====================================================
+        # SUMMARY
+        # =====================================================
+        n_tests = athlete_keiser[date_col].nunique()
+
+        first_test = athlete_keiser[date_col].min()
+
+        last_test = athlete_keiser[date_col].max()
+
+        c1, c2, c3 = st.columns(3)
+
+        with c1:
+            st.metric(
+                "Number of Tests",
+                n_tests
+            )
+
+        with c2:
+            st.metric(
+                "First Test",
+                first_test.strftime('%Y-%m-%d')
+                if pd.notnull(first_test)
+                else "-"
+            )
+
+        with c3:
+            st.metric(
+                "Last Test",
+                last_test.strftime('%Y-%m-%d')
+                if pd.notnull(last_test)
+                else "-"
+            )
+
+        # =====================================================
+        # BASE TABLE
+        # =====================================================
+        keiser_display = athlete_keiser[
+            [
+                date_col,
+
+                sj_load_col,
+                sj_left_col,
+                sj_right_col,
+
+                cmj_load_col,
+                cmj_left_col,
+                cmj_right_col
+            ]
+        ].copy()
+
+        keiser_display = keiser_display.rename(columns={
+
+            date_col: 'Date',
+
+            sj_load_col: 'SJ Load',
+            sj_left_col: 'SJ Power Left',
+            sj_right_col: 'SJ Power Right',
+
+            cmj_load_col: 'CMJ Load',
+            cmj_left_col: 'CMJ Power Left',
+            cmj_right_col: 'CMJ Power Right'
+        })
+
+        # =====================================================
+        # CALCULATE DELTAS
+        # =====================================================
+        keiser_display['SJ Delta %'] = (
+            (
+                keiser_display['SJ Power Left']
+                - keiser_display['SJ Power Right']
+            )
+            /
+            keiser_display[
+                ['SJ Power Left', 'SJ Power Right']
+            ].mean(axis=1)
+        ) * 100
+
+        keiser_display['CMJ Delta %'] = (
+            (
+                keiser_display['CMJ Power Left']
+                - keiser_display['CMJ Power Right']
+            )
+            /
+            keiser_display[
+                ['CMJ Power Left', 'CMJ Power Right']
+            ].mean(axis=1)
+        ) * 100
+
+        # =====================================================
+        # DISPLAY TABLE
+        # =====================================================
+        display_table = keiser_display.copy()
+
+        display_table['Date'] = (
+            display_table['Date']
+            .dt.strftime('%d/%m/%Y')
+        )
+
+        st.markdown("### 📋 Keiser Results")
+
+        st.dataframe(
+            display_table.sort_values(
+                by='Date',
+                ascending=False
+            ),
+            use_container_width=True
+        )
+
+        # =====================================================
+        # KPI TABLE
+        # =====================================================
+        final_kpi_table = pd.DataFrame({
+
+            'Date': (
+                list(keiser_display['Date']) * 2
+            ),
+
+            'KPI': (
+                ['SJ Power'] * len(keiser_display) +
+                ['CMJ Power'] * len(keiser_display)
+            ),
+
+            'Left': (
+                list(keiser_display['SJ Power Left']) +
+                list(keiser_display['CMJ Power Left'])
+            ),
+
+            'Right': (
+                list(keiser_display['SJ Power Right']) +
+                list(keiser_display['CMJ Power Right'])
+            )
+        })
+
+        final_kpi_table = (
+            final_kpi_table
+            .dropna(subset=['Left', 'Right'])
+            .sort_values(by='Date')
+        )
+
+        # =====================================================
+        # DISPLAY KPI TABLE
+        # =====================================================
+        kpi_display = final_kpi_table.copy()
+
+        kpi_display['Date'] = (
+            kpi_display['Date']
+            .dt.strftime('%d/%m/%Y')
+        )
+
+        st.markdown("### 📊 Keiser KPI Table")
+
+        st.dataframe(
+            kpi_display,
+            use_container_width=True
+        )
+
+        # =====================================================
+        # BAR PLOTS
+        # =====================================================
+        st.markdown("### 📈 Keiser Progression")
+
+        kpis = final_kpi_table[
+            'KPI'
+        ].dropna().unique()
+
+        n_cols = 2
+
+        for i in range(0, len(kpis), n_cols):
+
+            cols = st.columns(n_cols)
+
+            for j in range(n_cols):
+
+                if i + j >= len(kpis):
+                    continue
+
+                kpi = kpis[i + j]
+
+                kpi_df = final_kpi_table[
+                    final_kpi_table['KPI'] == kpi
+                ].sort_values('Date')
+
+                if kpi_df.empty:
+                    continue
+
+                fig, ax = plt.subplots(
+                    figsize=(4, 3)
+                )
+
+                x = np.arange(len(kpi_df))
+
+                width = 0.35
+
+                # LEFT
+                ax.bar(
+                    x - width / 2,
+                    kpi_df['Left'],
+                    width,
+                    label='Left'
+                )
+
+                # RIGHT
+                ax.bar(
+                    x + width / 2,
+                    kpi_df['Right'],
+                    width,
+                    label='Right'
+                )
+
+                ax.set_title(
+                    kpi,
+                    fontsize=10
+                )
+
+                ax.set_ylabel("Power")
+
+                ax.set_xticks(x)
+
+                ax.set_xticklabels(
+                    kpi_df['Date']
+                    .dt.strftime('%d/%m/%Y'),
+                    rotation=45,
+                    ha='right',
+                    fontsize=8
+                )
+
+                ax.tick_params(
+                    axis='y',
+                    labelsize=8
+                )
+
+                ax.legend(fontsize=8)
+
+                ax.grid(axis='y')
+
+                # VALUES
+                for idx, val in enumerate(kpi_df['Left']):
+
+                    ax.text(
+                        idx - width / 2,
+                        val,
+                        f'{val:.0f}',
+                        ha='center',
+                        va='bottom',
+                        fontsize=7
+                    )
+
+                for idx, val in enumerate(kpi_df['Right']):
+
+                    ax.text(
+                        idx + width / 2,
+                        val,
+                        f'{val:.0f}',
+                        ha='center',
+                        va='bottom',
+                        fontsize=7
+                    )
+
+                with cols[j]:
+                    st.pyplot(fig)
+
+        # =====================================================
+        # DELTA SUMMARY
+        # =====================================================
+        st.markdown(
+            "### 📌 Delta % Progress Summary"
+        )
+
+        summary_rows = []
+
+        for kpi in final_kpi_table[
+            'KPI'
+        ].dropna().unique():
+
+            kpi_df = final_kpi_table[
+                final_kpi_table['KPI'] == kpi
+            ].sort_values('Date')
+
+            if len(kpi_df) < 2:
+                continue
+
+            first_left = kpi_df.iloc[0]['Left']
+            first_right = kpi_df.iloc[0]['Right']
+
+            last_left = kpi_df.iloc[-1]['Left']
+            last_right = kpi_df.iloc[-1]['Right']
+
+            delta_left = (
+                (
+                    last_left - first_left
+                )
+                / first_left * 100
+                if first_left != 0
+                else np.nan
+            )
+
+            delta_right = (
+                (
+                    last_right - first_right
+                )
+                / first_right * 100
+                if first_right != 0
+                else np.nan
+            )
+
+            summary_rows.append({
+
+                'KPI': kpi,
+
+                'Delta % Left': round(
+                    delta_left,
+                    1
+                ),
+
+                'Delta % Right': round(
+                    delta_right,
+                    1
+                )
+            })
+
+        summary_df = pd.DataFrame(
+            summary_rows
+        )
+
+        st.dataframe(
+            summary_df,
+            use_container_width=True
+        )
+
+    else:
+
+        st.info(
+            "No Keiser test data available for this athlete."
+        )
+
+
+
 # =========================================================
 # FOOTER
 # =========================================================
