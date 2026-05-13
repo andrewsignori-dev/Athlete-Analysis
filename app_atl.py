@@ -945,7 +945,8 @@ with tab4:
     name_col = [c for c in test_df.columns if 'Name' in c][0]
 
     date_col = [
-        c for c in test_df.columns if c == 'Date' in str(c)][1]
+    c for c in test_df.columns
+    if str(c).strip() == 'Date']
 
     exercise_col = [
         c for c in test_df.columns
