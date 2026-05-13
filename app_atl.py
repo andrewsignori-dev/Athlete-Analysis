@@ -1447,16 +1447,16 @@ with tab4:
     axes[1].grid(True)
     axes[1].legend(fontsize=8)
 
-   # =====================================================
-   # 3. RIGHT LEG COMPARISON
-   # =====================================================
-   axes[2].plot(
+    # =====================================================
+    # 3. RIGHT LEG COMPARISON
+    # =====================================================
+    axes[2].plot(
        sj_left['Load (kg)'],
        sj_left['Power Right'],
        marker='o',
        label='SJ Right')
 
-   axes[2].plot(
+    axes[2].plot(
         cmj_left['Load (kg)'],
         cmj_left['Power Right'],
         marker='o',
