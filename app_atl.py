@@ -1392,28 +1392,18 @@ with tab4:
 
     axes[0].plot(
         sj_dl['Load (kg)'],
-        sj_dl['Power Left'],
-        marker='o',
-        label='SJ Left')
-
-    axes[0].plot(
-        sj_dl['Load (kg)'],
         sj_dl['Power Right'],
         marker='o',
         linestyle='--',
+        color='green',
         label='SJ Right')
-
-    axes[0].plot(
-        cmj_dl['Load (kg)'],
-        cmj_dl['Power Left'],
-        marker='o',
-        label='CMJ Left')
 
     axes[0].plot(
         cmj_dl['Load (kg)'],
         cmj_dl['Power Right'],
         marker='o',
         linestyle='--',
+        color='red',
         label='CMJ Right')
 
     axes[0].set_title("DL Comparison")
