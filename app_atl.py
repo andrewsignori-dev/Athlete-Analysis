@@ -1515,7 +1515,7 @@ with tab4:
     # =====================================================
     st.markdown("### 📈 Left / Right Power Ratio by Load")
 
-    fig, ax = plt.subplots(figsize=(8, 4))
+    fig, ax = plt.subplots(figsize=(5,5))
 
     # =====================================================
     # SJ SL
@@ -1526,6 +1526,7 @@ with tab4:
             ratio_summary['SJ SL Ratio'],
             marker='o',
             linewidth=2,
+            color='green',
             label='SJ SL')
 
      # =====================================================
@@ -1537,6 +1538,7 @@ with tab4:
              ratio_summary['CMJ SL Ratio'],
              marker='o',
              linewidth=2,
+             color='red',
              label='CMJ SL')
          
     ax.axhline(y=1,linestyle='--',linewidth=1)
