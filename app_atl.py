@@ -1515,7 +1515,7 @@ with tab4:
     # =====================================================
     st.markdown("### 📈 Left / Right Power Ratio by Load")
 
-    fig, ax = plt.subplots(figsize=(3,3))
+    fig, ax = plt.subplots(figsize=(7,3))
 
     # =====================================================
     # SJ SL
@@ -1559,7 +1559,7 @@ with tab4:
                     if pd.notnull(y):
                         ax.text(x,y,
                                 f'{y:.2f}',
-                                fontsize=2,
+                                fontsize=8,
                                 ha='center',
                                 va='bottom')
 
