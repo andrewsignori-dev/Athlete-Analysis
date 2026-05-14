@@ -291,11 +291,12 @@ st.markdown('---')
 # =========================================================
 # DASHBOARD TABS
 # =========================================================
-tab1, tab2, tab3, tab4 = st.tabs([
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📊 Main Dashboard",
     "👤 Individual Profile Section",
     "VALD - ForceFrame",
-    "KEISER"
+    "KEISER",
+    'KINESIO"
 ])
 
 # =========================================================
@@ -1577,7 +1578,385 @@ with tab4:
         st.info(
             "No KEISER data available for this athlete."
         )
+# =====================================================
+# TAB 5 - KINEO
+# =====================================================
+with tab5:
+    st.subheader("🏋️ KINEO Test History (Strength)")
 
+    # =====================================================
+    # COLUMN DETECTION
+    # =====================================================
+    name_col = [
+        c for c in test_df.columns
+        if 'Name' in str(c)
+    ][0]
+
+    date_candidates = [
+        c for c in test_df.columns
+        if 'Date' in str(c)
+    ]
+
+    date_col = date_candidates[-1]
+
+    exercise_col = [
+        c for c in test_df.columns
+        if 'Exercise name' in str(c)
+    ][0]
+
+    # =====================================================
+    # ATHLETE SELECTOR
+    # =====================================================
+    selected_profile = st.selectbox(
+        "Select Athlete",
+        sorted(test_df[name_col].dropna().unique()),
+        key="tab5_athlete"
+    )
+
+    # =====================================================
+    # FILTER ATHLETE
+    # =====================================================
+    athlete_df = test_df[
+        test_df[name_col] == selected_profile
+    ].copy()
+
+    # =====================================================
+    # CLEAN DATE
+    # =====================================================
+    athlete_df[date_col] = pd.to_datetime(
+        athlete_df[date_col],
+        errors='coerce',
+        dayfirst=True
+    )
+
+    # =====================================================
+    # KINEo COLUMN INDEXES
+    # =====================================================
+    kineo_speed_col = test_df.columns[18]
+    kineo_power_l_col = test_df.columns[19]
+    kineo_power_r_col = test_df.columns[20]
+
+    # =====================================================
+    # CLEAN DATE
+    # =====================================================
+    athlete_df[date_col] = pd.to_datetime(
+        athlete_df[date_col],
+        errors='coerce',
+        dayfirst=True
+    )
+
+    # =====================================================
+    # CLEAN NUMERIC COLUMNS
+    # =====================================================
+    numeric_cols = [
+        kineo_speed_col,
+        kineo_power_l_col,
+        kineo_power_r_col,]
+
+    for col in numeric_cols:
+
+        athlete_df[col] = pd.to_numeric(
+            athlete_df[col]
+            .astype(str)
+            .str.replace(',', '.'),
+            errors='coerce'
+        )
+
+    # =====================================================
+    # KINEO DATA
+    # =====================================================
+    kineo_df = athlete_df[
+        athlete_df[kineo_speed_col].notna()
+    ][[
+        date_col,
+        exercise_col,
+        kineo_speed_col,
+        kineo_power_l_col,
+        kineo_power_r_col
+    ]].copy()
+
+    kineo_df.columns = [
+        'Date',
+        'Exercise',
+        'Speed',
+        'Power Left',
+        'Power Right'
+    ]
+    
+
+    # =====================================================
+    # SORT
+    # =====================================================
+    kineo_df = kineo_df.sort_values(
+        by=['Speed']
+    )
+    
+    # =====================================================
+    # ATHLETE SUMMARY
+    # =====================================================
+    n_tests = kineo_df['Exercise'].nunique()
+    first_test = kineo_df['Date'].min()
+    last_test = kineo_df['Date'].max()
+
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        st.metric(
+            "Unique Tests",
+            n_tests)
+    with c2:
+        st.metric(
+            "First Test",
+            first_test.strftime('%Y-%m-%d')
+            if pd.notnull(first_test)
+            else "-")
+    with c3:
+        st.metric(
+            "Last Test",
+            last_test.strftime('%Y-%m-%d')
+            if pd.notnull(last_test)
+            else "-")
+        
+    # =====================================================
+    # DISPLAY TABLE
+    # =====================================================
+    display_table = kineo_df.copy()
+
+    display_table['Date'] = (
+        display_table['Date']
+        .dt.strftime('%d/%m/%Y')
+    )
+
+    st.markdown("### 📋 KINEO Results")
+
+    st.dataframe(
+        display_table,
+        use_container_width=True
+    )
+
+    # =====================================================
+    # PLOTS
+    # =====================================================
+    st.markdown("### 📈 KINEO Power Progression")
+
+    exercises = (
+        kineo_df['Exercise']
+        .dropna()
+        .unique()
+    )
+
+    n_cols = 2
+
+    for i in range(0, len(exercises), n_cols):
+
+        cols = st.columns(n_cols)
+
+        for j in range(n_cols):
+
+            if i + j >= len(exercises):
+                continue
+
+            ex = exercises[i + j]
+
+            ex_df = kineo_df[
+                kineo_df['Exercise'] == ex
+            ].sort_values('Speed')
+
+            if ex_df.empty:
+                continue
+
+            fig, ax = plt.subplots(
+                figsize=(5, 3)
+            )
+
+            x = np.arange(len(ex_df))
+
+            width = 0.35
+
+            # =================================================
+            # LEFT STRENGTH
+            # =================================================
+            ax.bar(
+                x - width / 2,
+                ex_df['Strength Left'],
+                width,
+                label='Left'
+            )
+
+            # =================================================
+            # RIGHT STRENGTH
+            # =================================================
+            ax.bar(
+                x + width / 2,
+                ex_df['Strength Right'],
+                width,
+                label='Right'
+            )
+
+            # =================================================
+            # TITLES
+            # =================================================
+            ax.set_title(
+                ex,
+                fontsize=10
+            )
+
+            ax.set_ylabel(
+                "Strength"
+            )
+
+            ax.set_xlabel(
+                "Speed"
+            )
+
+            # =================================================
+            # X LABELS
+            # =================================================
+            ax.set_xticks(x)
+
+            ax.set_xticklabels(
+                ex_df['Speed']
+                .fillna(0)
+                .astype(int)
+                .astype(str),
+                fontsize=8
+            )
+
+            ax.tick_params(
+                axis='y',
+                labelsize=8
+            )
+
+            ax.legend(
+                fontsize=8
+            )
+
+            ax.grid(
+                axis='y'
+            )
+
+            # =================================================
+            # VALUE LABELS LEFT
+            # =================================================
+            for idx, val in enumerate(
+                ex_df['Strength Left']
+            ):
+
+                if pd.notnull(val):
+
+                    ax.text(
+                        idx - width / 2,
+                        val,
+                        f'{val:.0f}',
+                        ha='center',
+                        va='bottom',
+                        fontsize=7
+                    )
+
+            # =================================================
+            # VALUE LABELS RIGHT
+            # =================================================
+            for idx, val in enumerate(
+                ex_df['Strength Right']
+            ):
+
+                if pd.notnull(val):
+
+                    ax.text(
+                        idx + width / 2,
+                        val,
+                        f'{val:.0f}',
+                        ha='center',
+                        va='bottom',
+                        fontsize=7
+                    )
+
+            with cols[j]:
+
+                st.pyplot(fig)
+
+    # =====================================================
+    # DELTA SUMMARY
+    # =====================================================
+    st.markdown(
+        "### 📌 KINEO Delta % Summary (from slowest to fastest)"
+    )
+
+    summary_rows = []
+
+    for ex in exercises:
+
+        ex_df = kineo_df[
+            kineo_df['Exercise'] == ex
+        ].sort_values('Speed')
+
+        if len(ex_df) < 2:
+            continue
+
+        # =================================================
+        # FIRST VALUES
+        # =================================================
+        first_left = ex_df.iloc[0]['Strength Left']
+        first_right = ex_df.iloc[0]['Strength Right']
+
+        # =================================================
+        # LAST VALUES
+        # =================================================
+        last_left = ex_df.iloc[-1]['Strength Left']
+        last_right = ex_df.iloc[-1]['Strength Right']
+
+        # =================================================
+        # DELTA %
+        # =================================================
+        delta_left = (
+            (
+                last_left - first_left
+            ) / first_left * 100
+            if first_left != 0
+            else np.nan
+        )
+
+        delta_right = (
+            (
+                last_right - first_right
+            ) / first_right * 100
+            if first_right != 0
+            else np.nan
+        )
+
+        summary_rows.append({
+
+            'Exercise': ex,
+
+            'Delta % Left': round(
+                delta_left,
+                1
+            ),
+
+            'Delta % Right': round(
+                delta_right,
+                1
+            )
+        })
+
+    summary_df = pd.DataFrame(
+        summary_rows
+    )
+
+    st.dataframe(
+        summary_df,
+        use_container_width=True
+    )
+    
+
+    # =====================================================
+    # NO DATA
+    # =====================================================
+    if kineo_df.empty:
+
+        st.info(
+            "No KINEO data available for this athlete."
+        )
 # =========================================================
 # FOOTER
 # =========================================================
