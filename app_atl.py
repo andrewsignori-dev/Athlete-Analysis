@@ -1539,31 +1539,30 @@ with tab4:
              linewidth=2,
              label='CMJ SL')
          
-       ax.axhline(
-          y=1,
-          linestyle='--',
-          linewidth=1)
-
-       ax.set_title("Left / Right Power Ratio Across Loads")
-       ax.set_xlabel("Load (kg)")
-       ax.set_ylabel("Left / Right Ratio")
-       ax.grid(True)
-       ax.legend()
+     ax.axhline(
+         y=1,
+         linestyle='--',
+         linewidth=1)
+     ax.set_title("Left / Right Power Ratio Across Loads")
+     ax.set_xlabel("Load (kg)")
+     ax.set_ylabel("Left / Right Ratio")
+     ax.grid(True)
+     ax.legend()
 
       # =====================================================
       # VALUE LABELS
       # =====================================================
-      for col in ['SJ SL Ratio', 'CMJ SL Ratio']:
-          if col in ratio_summary.columns:
-              for x, y in zip(
-                  ratio_summary['Load (kg)'],
-                  ratio_summary[col]):
-                      if pd.notnull(y):
-                          ax.text(x,y,
-                                  f'{y:.2f}',
-                                  fontsize=8,
-                                  ha='center',
-                                  va='bottom')
+     for col in ['SJ SL Ratio', 'CMJ SL Ratio']:
+         if col in ratio_summary.columns:
+             for x, y in zip(
+                 ratio_summary['Load (kg)'],
+                 ratio_summary[col]):
+                     if pd.notnull(y):
+                         ax.text(x,y,
+                                 f'{y:.2f}',
+                                 fontsize=8,
+                                 ha='center',
+                                 va='bottom')
 
     # =====================================================
     # DISPLAY
