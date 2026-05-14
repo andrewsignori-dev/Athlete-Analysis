@@ -1528,11 +1528,11 @@ with tab4:
             linewidth=2,
             label='SJ SL')
 
-      # =====================================================
-      # CMJ SL
-      # =====================================================
+     # =====================================================
+     # CMJ SL
+     # =====================================================
      if 'CMJ SL Ratio' in ratio_summary.columns:
-          ax.plot(
+         ax.plot(
              ratio_summary['Load (kg)'],
              ratio_summary['CMJ SL Ratio'],
              marker='o',
