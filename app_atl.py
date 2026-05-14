@@ -1461,6 +1461,54 @@ with tab4:
     # =====================================================
     plt.tight_layout()
     st.pyplot(fig)
+    
+    # =====================================================
+    # LEFT / RIGHT RATIO KPI TABLE
+    # =====================================================
+    st.markdown("### 📊 SL Left/Right Power Ratio Summary")
+
+    # =====================================================
+    # FILTER ONLY SL EXERCISES
+    # =====================================================
+    sl_ratio_df = keiser_display[keiser_display['Exercise'].isin([
+        'KEISER SJ SL',
+        'KEISER CMJ SL'])].copy()
+
+    # =====================================================
+    # CALCULATE RATIO
+    # =====================================================
+    sl_ratio_df['L/R Ratio'] = (
+        sl_ratio_df['Power Left'] / sl_ratio_df['Power Right'])
+
+    sl_ratio_df = sl_ratio_df[[
+        'Exercise',
+        'Load (kg)',
+        'L/R Ratio']]
+
+    # =====================================================
+    # PIVOT TABLE
+    # =====================================================
+    ratio_summary = sl_ratio_df.pivot_table(
+        index='Load (kg)',
+        columns='Exercise',
+        values='L/R Ratio',
+        aggfunc='mean').reset_index()
+
+    # =====================================================
+    # RENAME COLUMNS
+    # =====================================================
+    ratio_summary = ratio_summary.rename(columns={
+        'KEISER SJ SL': 'SJ SL Ratio',
+        'KEISER CMJ SL': 'CMJ SL Ratio'})
+
+    ratio_summary['SJ SL Ratio'] = (ratio_summary['SJ SL Ratio'].round(2))
+
+    ratio_summary['CMJ SL Ratio'] = (ratio_summary['CMJ SL Ratio'].round(2))
+
+    # =====================================================
+    # DISPLAY
+    # =====================================================
+    st.dataframe(ratio_summary,use_container_width=True)
 
     # =====================================================
     # NO DATA
