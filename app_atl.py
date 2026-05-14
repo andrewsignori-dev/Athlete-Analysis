@@ -1531,8 +1531,7 @@ with tab4:
      # =====================================================
      # CMJ SL
      # =====================================================
-     if 'CMJ SL Ratio' in ratio_summary.columns:
-         
+    if 'CMJ SL Ratio' in ratio_summary.columns:
          ax.plot(
              ratio_summary['Load (kg)'],
              ratio_summary['CMJ SL Ratio'],
