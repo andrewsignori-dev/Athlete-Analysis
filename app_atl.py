@@ -1632,9 +1632,9 @@ with tab5:
     # =====================================================
     # KINEo COLUMN INDEXES
     # =====================================================
-    kineo_speed_col = test_df.columns[18]
-    kineo_power_l_col = test_df.columns[19]
-    kineo_power_r_col = test_df.columns[20]
+    kineo_speed_col = test_df.columns[19]
+    kineo_power_l_col = test_df.columns[20]
+    kineo_power_r_col = test_df.columns[21]
 
     # =====================================================
     # CLEAN DATE
