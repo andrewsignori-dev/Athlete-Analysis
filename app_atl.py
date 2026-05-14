@@ -1679,8 +1679,8 @@ with tab5:
         'Date',
         'Exercise',
         'Speed',
-        'Power Left',
-        'Power Right'
+        'Strength Left',
+        'Strength Right'
     ]
     
 
