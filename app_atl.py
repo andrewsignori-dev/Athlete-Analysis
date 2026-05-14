@@ -1539,7 +1539,7 @@ with tab4:
              linewidth=2,
              label='CMJ SL')
          
-     ax.axhline(y=1,linestyle='--',linewidth=1)
+    ax.axhline(y=1,linestyle='--',linewidth=1)
      ax.set_title("Left / Right Power Ratio Across Loads")
      ax.set_xlabel("Load (kg)")
      ax.set_ylabel("Left / Right Ratio")
