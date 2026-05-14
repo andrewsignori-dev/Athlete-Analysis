@@ -1528,26 +1528,26 @@ with tab4:
             linewidth=2,
             label='SJ SL')
 
-     # =====================================================
-     # CMJ SL
-     # =====================================================
-     if 'CMJ SL Ratio' in ratio_summary.columns:
-         ax.plot(
+      # =====================================================
+      # CMJ SL
+      # =====================================================
+      if 'CMJ SL Ratio' in ratio_summary.columns:
+          ax.plot(
              ratio_summary['Load (kg)'],
              ratio_summary['CMJ SL Ratio'],
              marker='o',
              linewidth=2,
              label='CMJ SL')
-      ax.axhline(
+       ax.axhline(
           y=1,
           linestyle='--',
           linewidth=1)
 
-      ax.set_title("Left / Right Power Ratio Across Loads")
-      ax.set_xlabel("Load (kg)")
-      ax.set_ylabel("Left / Right Ratio")
-      ax.grid(True)
-      ax.legend()
+       ax.set_title("Left / Right Power Ratio Across Loads")
+       ax.set_xlabel("Load (kg)")
+       ax.set_ylabel("Left / Right Ratio")
+       ax.grid(True)
+       ax.legend()
 
       # =====================================================
       # VALUE LABELS
