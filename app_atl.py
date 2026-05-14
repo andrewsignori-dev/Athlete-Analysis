@@ -1559,7 +1559,7 @@ with tab4:
                     if pd.notnull(y):
                         ax.text(x,y,
                                 f'{y:.2f}',
-                                fontsize=8,
+                                fontsize=2,
                                 ha='center',
                                 va='bottom')
 
