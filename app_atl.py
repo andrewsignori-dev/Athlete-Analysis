@@ -1948,6 +1948,35 @@ with tab5:
         use_container_width=True
     )
     
+    # =====================================================
+    # LEFT / RIGHT RATIO KPI TABLE
+    # =====================================================
+    st.markdown("### 📊 SL Left/Right Strength Ratio Summary")
+
+    # =====================================================
+    # CALCULATE RATIO
+    # =====================================================
+    kineo_df['L/R Ratio'] = (
+        kineo_df['Strength Left'] / kineo_df['Strength Right'])
+
+    kineo_df = kineo_df[[
+        'Exercise',
+        'Speed',
+        'L/R Ratio']]
+
+    # =====================================================
+    # PIVOT TABLE
+    # =====================================================
+    ratio_summary = kineo_df.pivot_table(
+        index='Speed',
+        columns='Exercise',
+        values='L/R Ratio',
+        aggfunc='mean').reset_index()
+
+    # =====================================================
+    # DISPLAY
+    # =====================================================
+    st.dataframe(ratio_summary,use_container_width=True)
 
     # =====================================================
     # NO DATA
