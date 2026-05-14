@@ -296,7 +296,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "👤 Individual Profile Section",
     "VALD - ForceFrame",
     "KEISER",
-    'KINESIO"
+    "KINEO"
 ])
 
 # =========================================================
