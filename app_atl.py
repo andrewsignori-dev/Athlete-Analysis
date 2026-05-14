@@ -1874,84 +1874,11 @@ with tab5:
             with cols[j]:
 
                 st.pyplot(fig)
-
-    # =====================================================
-    # DELTA SUMMARY
-    # =====================================================
-    st.markdown(
-        "### 📌 KINEO Delta % Summary (from slowest to fastest)"
-    )
-
-    summary_rows = []
-
-    for ex in exercises:
-
-        ex_df = kineo_df[
-            kineo_df['Exercise'] == ex
-        ].sort_values('Speed')
-
-        if len(ex_df) < 2:
-            continue
-
-        # =================================================
-        # FIRST VALUES
-        # =================================================
-        first_left = ex_df.iloc[0]['Strength Left']
-        first_right = ex_df.iloc[0]['Strength Right']
-
-        # =================================================
-        # LAST VALUES
-        # =================================================
-        last_left = ex_df.iloc[-1]['Strength Left']
-        last_right = ex_df.iloc[-1]['Strength Right']
-
-        # =================================================
-        # DELTA %
-        # =================================================
-        delta_left = (
-            (
-                last_left - first_left
-            ) / first_left * 100
-            if first_left != 0
-            else np.nan
-        )
-
-        delta_right = (
-            (
-                last_right - first_right
-            ) / first_right * 100
-            if first_right != 0
-            else np.nan
-        )
-
-        summary_rows.append({
-
-            'Exercise': ex,
-
-            'Delta % Left': round(
-                delta_left,
-                1
-            ),
-
-            'Delta % Right': round(
-                delta_right,
-                1
-            )
-        })
-
-    summary_df = pd.DataFrame(
-        summary_rows
-    )
-
-    st.dataframe(
-        summary_df,
-        use_container_width=True
-    )
     
     # =====================================================
     # LEFT / RIGHT RATIO KPI TABLE
     # =====================================================
-    st.markdown("### 📊 SL Left/Right Strength Ratio Summary")
+    st.markdown("### 📊 LEG EXT Left/Right Strength Ratio Summary")
 
     # =====================================================
     # CALCULATE RATIO
@@ -1972,6 +1899,7 @@ with tab5:
         columns='Exercise',
         values='L/R Ratio',
         aggfunc='mean').reset_index()
+    ratio_summary = ratio_summary.rename(columns={'LEG EXT ISOKINETIC': 'Ratio L/R'})
 
     # =====================================================
     # DISPLAY
