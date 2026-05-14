@@ -1515,7 +1515,7 @@ with tab4:
     # =====================================================
     st.markdown("### 📈 Left / Right Power Ratio by Load")
 
-    fig, ax = plt.subplots(figsize=(5,5))
+    fig, ax = plt.subplots(figsize=(3,3))
 
     # =====================================================
     # SJ SL
