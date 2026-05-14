@@ -933,7 +933,7 @@ with tab3:
 # TAB 4 - KEISER
 # =====================================================
 with tab4:
-    st.subheader("🏋️ KEISER Test History")
+    st.subheader("🏋️ KEISER Test History (Power)")
 
     # =====================================================
     # COLUMN DETECTION
@@ -1286,7 +1286,7 @@ with tab4:
     # DELTA SUMMARY
     # =====================================================
     st.markdown(
-        "### 📌 KEISER Delta % Summary"
+        "### 📌 KEISER Delta % Summary (from ligthest Kg to heaviest kg)"
     )
 
     summary_rows = []
